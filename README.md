@@ -66,7 +66,7 @@ writeln "Hello, world!",
 writeln "2 + 3 = " (2 + 3)
 ```
 
-If you want to have more than 1 statement in an event, you will have to divide them with commas. The function parameters are divided by spaces, so you will have to use parenthesis if you want to put an expresion instead of a value. To assign values to variables you will need the let statement:
+If you want to have more than 1 statement in an event, you will have to divide them with commas. The function parameters are divided by spaces, so you will have to use parenthesis if you want to put an expression instead of a value. To assign values to variables you will need the let statement:
 
 ```
 let counter = 0,
@@ -145,9 +145,9 @@ In this language there are 4 types of values:
 * Unary: +, -
 * Binary: +, -, *, /, %, div, mod
 
-The operator `%` and `mod` are the same, but `div` makes an integer division while `/` can be a float division if one of the values is a float number. The other operators are quite the same as any c-syntax language, except the `+` operator if you use an string value in any side, because this will convert any other value to an string and concatenate both string values.
+The operator `%` and `mod` are the same, but `div` makes an integer division while `/` can be a float division if one of the values is a float number. The other operators are quite the same as any c-syntax language, except the `+` operator if you use a string value in any side, because this will convert any other value to a string and concatenate both string values.
 
-You can use an string in any kind of arithmetic operation, and it will try to convert the string to float or integer. If the conversion can't be done, it will return zero as value. So be careful if you use strings.
+You can use a string in any kind of arithmetic operation, and it will try to convert the string to float or integer. If the conversion can't be done, it will return zero as value. So be careful if you use strings.
 
 ### Logical
 
