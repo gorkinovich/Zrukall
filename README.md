@@ -18,7 +18,7 @@ room my_room:
 end
 ```
 
-To declare an object use:
+There is a special room with the name `main`, this one is where the game will start, so you can use it to initialize the game and then go to the first real room of your game. To declare an object use:
 
 ```
 object my_object:
