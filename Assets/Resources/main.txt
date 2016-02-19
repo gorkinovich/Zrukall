@@ -1,0 +1,2881 @@
+﻿#================================================================================
+# Copyright (c) 2016 Gorka Suárez García
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+# DEALINGS IN THE SOFTWARE.
+#================================================================================
+
+# BIFs:  writeln, write, goto, finish, setdefmsg, invadd, invrem, invhas,
+#        reset, roomname, lastroom, setrunfst, setrunall
+# Objs:  cruz, pastillas, llavepequeña, martillo, cerillas, llavesótano
+# Rooms: dormitorio1, baño1, biblioteca1, pasillo1, pasillo2, recibidor1,
+#        cocina1, despensa1, salón1, sótano1, sótano2, oscuridad1
+
+#================================================================================
+# Entrada principal al juego:
+#================================================================================
+room main:
+    on enter:
+        let dorm1_visitas   = 0,     # Visitas al dormitorio.
+        let baño1_visitas   = 0,     # Visitas al baño.
+        let bibl1_visitas   = 0,     # Visitas al despacho.
+        let coci1_visitas   = 0,     # Visitas a la cocina.
+        let desp1_visitas   = 0,     # Visitas a la despensa.
+        let salo1_visitas   = 0,     # Visitas al salón.
+        let sota1_visitas   = 0,     # Visitas al sótano.
+        let cara_lavada     = false, # La cara lavada.
+        let nervioso        = false, # El indicador de estar nervioso.
+        let tele_ataque     = false, # El indicador de si la tele te atacó.
+
+        let dorm1_acostado  = true,  # Estar acostado en la cama.
+        let dorm1_cruzcaja  = true,  # La cruz dentro de la caja.
+        let dorm1_p1abierta = false, # La puerta principal.
+        let dorm1_p2abierta = false, # La puerta del baño.
+        let dorm1_a1abierto = false, # La puerta del armario.
+        let dorm1_c1abierta = false, # La caja del armario.
+
+        let baño1_msjbañera = true,  # El mensaje de la bañera.
+        let baño1_pastillas = true,  # Las pastillas en el armario.
+        let baño1_g1abierto = false, # El grifo del lavabo.
+        let baño1_g2abierto = false, # El grifo de la bañera.
+        let baño1_a1abierto = false, # La puerta del espejo-armario.
+
+        let bibl1_llavepequ = true,  # La llave pequeña.
+        let bibl1_llavesuel = false, # La llave en el suelo.
+        let bibl1_p1abierta = false, # La puerta principal.
+        let bibl1_e1abierta = false, # El escritorio.
+
+        let coci1_p1abierta = false, # La puerta principal.
+        let coci1_p2abierta = false, # La puerta de la despensa.
+
+        let desp1_martillo  = true,  # El martillo en la despensa.
+        let desp1_cerillas  = true,  # Las cerillas en la despensa.
+
+        let salo1_llavesota = true,  # La llave del sótano.
+        let salo1_monstruo  = false, # El monstruo de la tele.
+        let salo1_p1abierta = false, # La puerta principal.
+
+        let sota1_paredfond = true,  # La pared al fondo del sótano.
+        let sota1_iluminaci = false, # El sótano está iluminado.
+        let sota1_p1abierta = false, # La puerta principal.
+        let sota1_c1abierta = false, # La cerradura de la puerta principal.
+
+        #--------01234567890123456789012345678901234567890123456789012345678901234567890123456789
+        writeln "Nota: Puedes utilizar \"ayuda\" cuando no sepas bien qué hacer. Ten en cuenta\n"
+                "      que para interactuar tendrás que poner algún verbo solo o con el nombre\n"
+                "      de aquello con lo que vayas a interaccionar. Preferiblemente usa los\n"
+                "      verbos en modo infinitivo, que el juego tiene sus limitaciones para\n"
+                "      entender el lenguaje natural. Gracias por jugar. ^_^",
+        setdefmsg "No puedes hacer eso...",
+        setrunfst,
+        goto dormitorio1
+    end
+end
+
+#================================================================================
+# Dormitorio principal de la casa:
+#================================================================================
+room dormitorio1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if dorm1_visitas = 0:
+            writeln "\nTe despiertas. Es de madrugada o eso parece por la negra oscuridad, en la\n"
+                    "que tu mirada se pierde al mirar por la ventana. La luz, de la luna llena,\n"
+                    "inunda la habitación de forma fría y tibia. Todo parece extrañamente tranquilo\n"
+                    "y sin embargo sentiste un misterioso ruido... Como un golpe en algún punto o\n"
+                    "lugar de la casa."
+        else if ((lastroom) = "baño1") and (dorm1_p1abierta):
+            writeln "\nVuelves al dormitorio desde el baño, cuando te percatas de que hay en\n"
+                    "cuarto la presencia de una figura sombría. A su espalda la puerta, del\n"
+                    "dormitorio, abierta. No alcanzas a poder reconocerla y antes de siquiera\n"
+                    "ser consciente de lo que está ocurriendo, caes al suelo tras un golpe.\n"
+                    "Luego llega el dolor. Luego la sangre, que cubre todo el suelo.\n"
+                    "Y por último... La oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else:
+            writeln "\nVuelves al dormitorio. La luz, de la luna llena, inunda la habitación de\n"
+                    "forma fría y tibia. Todo parece seguir extrañamente tranquilo y sin embargo\n"
+                    "no logras sentirte tranquilo en este momento..."
+        end
+    end
+    on exit:
+        let dorm1_visitas = dorm1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        if dorm1_acostado:
+            writeln "Puedes mirar, levantarte."
+        else:
+            writeln "Puedes mirar, abrir, cerrar, ir, cruzar, coger, acostarte."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cama
+    #----------------------------------------------------------------------------
+    on "acostar|acostarse|acostarte|usar cama":
+        if not dorm1_acostado:
+            writeln "Te sientes cansado y por instinto te vuelves a acostar sobre la cama,\n"
+                    "sintiendo que las sábanas todavía siguen húmedas por tu sudor.",
+            let dorm1_acostado = true
+        else:
+            writeln "Ya estás acostado en la cama."
+        end
+    end
+    on "levantar|levantarse|levantarte":
+        if dorm1_acostado:
+            writeln "Torpemente te levantas de la cama, intentando no caerte, ni tropezarte con\n"
+                    "nada que pueda estar tirado por el suelo.",
+            let dorm1_acostado = false
+        else:
+            writeln "Ya te has levantado de la cama."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Ventana
+    #----------------------------------------------------------------------------
+    on "abrir ventana|usar ventana":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else:
+            writeln "Hace demasiado frío como para pensar en abrirla."
+        end
+    end
+    on "mirar ventana":
+        if dorm1_acostado:
+            writeln "Miras sentado desde tu cama y ves el cielo negro, totalmente negro. Ni una\n"
+                    "sola estrella en el firmamento. La única intromisión es la de la luna, que\n"
+                    "pareciera un foco o un agujero en una tela negra. Ese blanco plateado es al\n"
+                    "mismo tiempo hermoso y perturbador."
+        else:
+            writeln "Te acercas un momento a la ventana y ves el cielo negro, totalmente negro.\n"
+                    "Ni una sola estrella en el firmamento. La única intromisión es la de la luna,\n"
+                    "que pareciera un foco o un agujero en una tela negra. Ese blanco plateado es\n"
+                    "al mismo tiempo hermoso y perturbador. Luego miras hacia la calle y todo\n"
+                    "parece muerto, sin vida..."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta del baño
+    #----------------------------------------------------------------------------
+    on "ir baño|cruzar baño|usar baño":
+        if dorm1_acostado:
+            writeln "Estando acostado no puedes cruzarla la puerta."
+        else if dorm1_p2abierta:
+            writeln "Cruzas la puerta dirigiéndote hacia el baño.",
+            goto baño1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir baño":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_p2abierta:
+            writeln "Ya está abierta la puerta del baño."
+        else:
+            writeln "Te acercas y abres la puerta del baño.",
+            let dorm1_p2abierta = true
+        end
+    end
+    on "cerrar baño":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_p2abierta:
+            writeln "Te acercas y cierras la puerta del baño.",
+            let dorm1_p2abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del baño."
+        end
+    end
+    on "mirar baño":
+        if dorm1_acostado:
+            writeln "Estás acostado y por lo tanto no alcanzas a poder ver bien el baño sin\n"
+                    "antes levantarte de la cama."
+        else if dorm1_p2abierta:
+            writeln "Te acercas un poco más a la puerta del baño y observas a través de la misma\n"
+                    "lo que hay al otro lado. La pequeña ventana del mismo permite entrar muy poca\n"
+                    "luz, haciendo que sin estar oscuro se encuentre el cuarto en la penumbra."
+        else:
+            writeln "Te acercas un poco más a la puerta del baño, pero al estar cerrada solo\n"
+                    "logras mirarla. Desde luego no hay nada que destacar de la misma."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Armario
+    #----------------------------------------------------------------------------
+    on "abrir armario":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_a1abierto:
+            writeln "Ya está abierta la puerta del armario."
+        else:
+            writeln "Te acercas y abres la puerta del armario.",
+            let dorm1_a1abierto = true
+        end
+    end
+    on "cerrar armario":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_a1abierto:
+            writeln "Te acercas y cierras la puerta del armario.",
+            let dorm1_a1abierto = false
+        else:
+            writeln "Ya está cerrada la puerta del armario."
+        end
+    end
+    on "usar armario":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_a1abierto:
+            writeln "Te acercas y cierras la puerta del armario.",
+            let dorm1_a1abierto = false
+        else:
+            writeln "Te acercas y abres la puerta del armario.",
+            let dorm1_a1abierto = true
+        end
+    end
+    on "mirar armario":
+        if dorm1_acostado:
+            writeln "Estás acostado y por lo tanto no alcanzas a poder ver bien el armario sin\n"
+                    "antes levantarte de la cama."
+        else if dorm1_a1abierto:
+            writeln "Te acercas un poco más al armario y puedes observar los cajones con ropa\n"
+                    "diversa, así como camisetas apiladas en las diversas baldas. Además de todo\n"
+                    "ello hay una caja de cartón cerrada en el suelo, debajo de los trajes,\n"
+                    "pantalones y abrigos colgados en perchas."
+        else:
+            writeln "Te acercas un poco más al armario, pero al estar cerrado solo logras mirar\n"
+                    "la puerta. Desde luego no hay nada que destacar de la misma."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Caja en el armario
+    #----------------------------------------------------------------------------
+    on "coger caja":
+        if dorm1_acostado:
+            if dorm1_a1abierto:
+                writeln "Estás acostado y no alcanzas a poder abrir la caja que hay dentro del\n"
+                        "armario, al fondo del mismo."
+            else:
+                writeln "Estás acostado y además no ves ninguna caja por el cuarto."
+            end
+        else:
+            if dorm1_a1abierto:
+                writeln "Lo cierto es que no te apetece ir cargando con la caja por toda la casa.\n"
+                        "Además resulta un tanto pesada, por lo que es mejor que se quede dentro del\n"
+                        "armario."
+            else:
+                writeln "Lo cierto es que no ves ninguna caja por el cuarto."
+            end
+        end
+    end
+    on "abrir caja":
+        if dorm1_acostado:
+            if dorm1_a1abierto:
+                writeln "Estás acostado y no alcanzas a poder abrir la caja que hay dentro del\n"
+                        "armario, al fondo del mismo."
+            else:
+                writeln "Estás acostado y además no ves ninguna caja por el cuarto."
+            end
+        else:
+            if dorm1_a1abierto:
+                if dorm1_c1abierta:
+                    writeln "Ya está abierta la caja que está dentro del armario."
+                else:
+                    writeln "Te acercas y abres la caja que está dentro del armario.",
+                    let dorm1_c1abierta = true
+                end
+            else:
+                writeln "Lo cierto es que no ves ninguna caja por el cuarto."
+            end
+        end
+    end
+    on "cerrar caja":
+        if dorm1_acostado:
+            if dorm1_a1abierto:
+                writeln "Estás acostado y no alcanzas a poder cerrar la caja que hay dentro del\n"
+                        "armario, al fondo del mismo."
+            else:
+                writeln "Estás acostado y además no ves ninguna caja por el cuarto."
+            end
+        else:
+            if dorm1_a1abierto:
+                if dorm1_c1abierta:
+                    writeln "Te acercas y cierras la caja que está dentro del armario.",
+                    let dorm1_c1abierta = false
+                else:
+                    writeln "Ya está cerrada la caja que está dentro del armario."
+                end
+            else:
+                writeln "Lo cierto es que no ves ninguna caja por el cuarto."
+            end
+        end
+    end
+    on "mirar caja":
+        if dorm1_acostado:
+            if dorm1_a1abierto:
+                writeln "Estás acostado y no alcanzas a poder observar la caja que hay dentro del\n"
+                        "armario, al fondo del mismo."
+            else:
+                writeln "Estás acostado y además no ves ninguna caja por el cuarto."
+            end
+        else:
+            if dorm1_a1abierto:
+                if dorm1_c1abierta:
+                    if dorm1_cruzcaja:
+                        writeln "Te acercas hasta la caja. Con cuidado echas un vistazo en su interior con\n"
+                                "cierto dolor en tu pecho. Allí están algunos de los recuerdos que conservas\n"
+                                "de Eva. No pudiste deshacerte de ellos, la congoja te lo impedía. Entre fotos\n"
+                                "y demás, se encuentra el crucifijo que usaba de colgante cuando estaba con\n"
+                                "vida. Raro era verla separarse de él. Era una de sus posesiones más preciadas."
+                    else:
+                        writeln "Te acercas hasta la caja. Con cuidado echas un vistazo en su interior con\n"
+                                "cierto dolor en tu pecho. Allí están algunos de los recuerdos que conservas\n"
+                                "de Eva. No pudiste deshacerte de ellos, la congoja te lo impedía."
+                    end
+                else:
+                    writeln "Te acercas hasta la caja, pero está cerrada."
+                end
+            else:
+                writeln "Lo cierto es que no ves ninguna caja por el cuarto."
+            end
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cruz en la caja
+    #----------------------------------------------------------------------------
+    on "coger cruz|recoger cruz|tomar cruz|coger crucifijo|recoger crucifijo|tomar crucifijo":
+        if dorm1_acostado:
+            if dorm1_a1abierto and dorm1_c1abierta and dorm1_cruzcaja:
+                writeln "Estás acostado y no alcanzas a poder coger la cruz que hay dentro de la\n"
+                        "caja en el armario, al fondo del mismo."
+            else:
+                writeln "Estás acostado y además no ves ninguna cruz por el cuarto."
+            end
+        else:
+            if dorm1_a1abierto and dorm1_c1abierta and dorm1_cruzcaja:
+                writeln "Te acercas hasta la caja y coges la cruz que pertenecía a Eva.",
+                let dorm1_cruzcaja = false,
+                invadd cruz
+            else:
+                writeln "Lo cierto es que no ves ninguna cruz por el cuarto."
+            end
+        end
+    end
+    on "mirar cruz|mirar crucifijo":
+        if dorm1_acostado:
+            if dorm1_a1abierto and dorm1_c1abierta and dorm1_cruzcaja:
+                writeln "Estás acostado y no alcanzas a poder observar la cruz que hay dentro de la\n"
+                        "caja en el armario, al fondo del mismo."
+            else:
+                writeln "Estás acostado y además no ves ninguna cruz por el cuarto."
+            end
+        else:
+            if dorm1_a1abierto and dorm1_c1abierta and dorm1_cruzcaja:
+                writeln "Te acercas hasta la caja y miras la cruz que pertenecía a Eva. El dolor\n"
+                        "oprime tu pecho al sentir los recuerdos, profundos, perdidos en el tiempo,\n"
+                        "rescatados ante aquel objeto. Resultaba raro verla separarse del crucifijo,\n"
+                        "pues se trataba de una de las más preciadas posesiones de ella."
+            else:
+                writeln "Lo cierto es que no ves ninguna cruz por el cuarto."
+            end
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta principal
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        if dorm1_acostado:
+            writeln "Estando acostado no puedes cruzarla la puerta."
+        else if dorm1_p1abierta:
+            writeln "Cruzas la puerta dirigiéndote hacia el oscuro pasillo.",
+            if cara_lavada:
+                goto pasillo2
+            else:
+                goto pasillo1
+            end
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_p1abierta:
+            writeln "Ya está abierta la puerta del cuarto."
+        else:
+            writeln "Te acercas y abres la puerta del cuarto. Por un momento, fugaz y breve,\n"
+                    "dirías que te sientes intranquilo, sin saber por qué.",
+            let dorm1_p1abierta = true
+        end
+    end
+    on "cerrar puerta":
+        if dorm1_acostado:
+            writeln "Estando acostado no alcanzas a poder hacerlo."
+        else if dorm1_p1abierta:
+            writeln "Te acercas y cierras la puerta del cuarto. Eso te da cierta tranquilidad.",
+            let dorm1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del cuarto."
+        end
+    end
+    on "mirar puerta":
+        if dorm1_acostado:
+            writeln "Estás acostado y por lo tanto no alcanzas a poder ver bien la puerta\n"
+                    "principal armario sin antes levantarte de la cama."
+        else if dorm1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del cuarto. Al mirar a través de la misma\n"
+                    "te encuentras observando el oscuro pasillo de la primera planta. Prácticamente\n"
+                    "no se puede apreciar ningún detalle, las tinieblas lo cubren todo."
+        else:
+            writeln "Te acercas un poco más a la puerta del cuarto, pero al estar cerrado solo\n"
+                    "logras mirarla. Dirías que no hay nada a destacar de la misma, pero no puedes\n"
+                    "evitar sentir cierta congoja en tu interior al estar cerca de ella."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar cuarto|mirar habitación|mirar habitacion":
+        if dorm1_acostado:
+            if (not dorm1_p1abierta) and (not dorm1_p2abierta) and (not dorm1_a1abierto):
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. La puerta\n"
+                        "del dormitorio está cerrada, así como la del baño. No soportas las puertas\n"
+                        "abiertas, pero sobre todo ver la oscuridad a través de ellas. Tampoco parece\n"
+                        "que haya rastro de actividad alguna en el armario, bien cerrado."
+            else if dorm1_p1abierta and (not dorm1_p2abierta) and (not dorm1_a1abierto):
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. La puerta\n"
+                        "del dormitorio está abierta, al contrario que las puertas del baño y del\n"
+                        "armario. No sabes por qué pero, al verla abierta, no te sientes tranquilo con\n"
+                        "la oscuridad a través de la misma."
+            else if (not dorm1_p1abierta) and dorm1_p2abierta and (not dorm1_a1abierto):
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. Las puertas\n"
+                        "del dormitorio y del armario están cerradas, al contrario que la del baño.\n"
+                        "Aunque dicho cuarto parece estar en la penumbra, más que en la oscuridad,\n"
+                        "no terminas de estar del todo a gusto viendo la puerta abierta."
+            else if (not dorm1_p1abierta) and (not dorm1_p2abierta) and dorm1_a1abierto:
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. La puerta\n"
+                        "del dormitorio está cerrada, así como la del baño. No soportas las puertas\n"
+                        "abiertas, pero sobre todo ver la oscuridad a través de ellas. En cuanto al\n"
+                        "armario ves que está abierta, pero no aprecias bien su interior desde ahí."
+            else if dorm1_p1abierta and dorm1_p2abierta and (not dorm1_a1abierto):
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. La puerta\n"
+                        "del dormitorio y la del baño están abiertas. Eso te hace sentir bastante\n"
+                        "nervioso al ver la oscuridad a través de ellas. En cuanto al armario ves\n"
+                        "que está bien cerrado y sin rastro de actividad."
+            else if dorm1_p1abierta and (not dorm1_p2abierta) and dorm1_a1abierto:
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. La puerta\n"
+                        "del dormitorio y del armario están abiertas, al contrario que la del baño.\n"
+                        "No sabes por qué pero, al ver la puerta principal abierta, no te sientes\n"
+                        "tranquilo con la oscuridad a través de la misma."
+            else if (not dorm1_p1abierta) and dorm1_p2abierta and dorm1_a1abierto:
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. La puerta\n"
+                        "del dormitorio está cerrada, al contrario que las del baño y del armario.\n"
+                        "Aunque dicho cuarto parece estar en la penumbra, más que en la oscuridad,\n"
+                        "no terminas de estar del todo a gusto viendo la puerta abierta."
+            else:
+                writeln "Acostado en la cama miras a tu alrededor y todo parece tranquilo. Sin\n"
+                        "embargo las sábanas parecen mojadas de sudor, a pesar del frío. Las puertas\n"
+                        "del dormitorio, el baño y el armario están abiertas. Todas abiertas. Te\n"
+                        "sientes tremendamente nervioso, como si la oscuridad te observara."
+            end
+        else:
+            if (not dorm1_p1abierta) and (not dorm1_p2abierta) and (not dorm1_a1abierto):
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. La puerta del dormitorio está cerrada, así como la del baño. No soportas\n"
+                        "las puertas abiertas, pero sobre todo ver la oscuridad a través de ellas.\n"
+                        "Tampoco parece que haya rastro de actividad alguna en el armario, bien cerrado."
+            else if dorm1_p1abierta and (not dorm1_p2abierta) and (not dorm1_a1abierto):
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. La puerta del dormitorio está abierta, al contrario que las puertas\n"
+                        "del baño y del armario. No sabes por qué pero, al verla abierta, no te sientes\n"
+                        "tranquilo con la oscuridad a través de la misma."
+            else if (not dorm1_p1abierta) and dorm1_p2abierta and (not dorm1_a1abierto):
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. Las puertas del dormitorio y del armario están cerradas, al contrario\n"
+                        "que la del baño. Aunque dicho cuarto parece estar en la penumbra, más que\n"
+                        "en la oscuridad, no terminas de estar del todo a gusto viendo la puerta\n"
+                        "abierta."
+            else if (not dorm1_p1abierta) and (not dorm1_p2abierta) and dorm1_a1abierto:
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. La puerta del dormitorio está cerrada, así como la del baño. No soportas\n"
+                        "las puertas abiertas, pero sobre todo ver la oscuridad a través de ellas. En\n"
+                        "cuanto al armario ves que está abierta, pero no aprecias bien su interior\n"
+                        "desde ahí."
+            else if dorm1_p1abierta and dorm1_p2abierta and (not dorm1_a1abierto):
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. La puerta del dormitorio y la del baño están abiertas. Eso te hace\n"
+                        "sentir bastante nervioso al ver la oscuridad a través de ellas. En cuanto al\n"
+                        "armario ves que está bien cerrado y sin rastro de actividad."
+            else if dorm1_p1abierta and (not dorm1_p2abierta) and dorm1_a1abierto:
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. La puerta del dormitorio y del armario están abiertas, al contrario que\n"
+                        "la del baño. No sabes por qué pero, al ver la puerta principal abierta, no\n"
+                        "te sientes tranquilo con la oscuridad a través de la misma."
+            else if (not dorm1_p1abierta) and dorm1_p2abierta and dorm1_a1abierto:
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. La puerta del dormitorio está cerrada, al contrario que las del baño\n"
+                        "y del armario. Aunque dicho cuarto parece estar en la penumbra, más que en\n"
+                        "la oscuridad, no terminas de estar del todo a gusto viendo la puerta abierta."
+            else:
+                writeln "Estás de pie al lado de la cama. Miras a tu alrededor y todo parece\n"
+                        "tranquilo. Sin embargo las sábanas parecen mojadas de sudor, a pesar del\n"
+                        "frío. Las puertas del dormitorio, el baño y el armario están abiertas. Todas\n"
+                        "abiertas. Te sientes tremendamente nervioso, como si la oscuridad te observara."
+            end
+        end
+    end
+end
+
+#================================================================================
+# Baño del dormitorio principal de la casa:
+#================================================================================
+room baño1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if baño1_visitas = 0:
+            writeln "\nEntras en el baño y a pesar de pulsar, el interruptor de la luz, no\n"
+                    "se enciende la bombilla. ¿Se habría ido la luz en el barrio? ¿O es que\n"
+                    "simplemente se había roto la dichosa bombilla otra vez?"
+        else if baño1_g1abierto and baño1_g2abierto:
+            writeln "\nVuelves a entrar en el baño. Entonces ves el suelo encharcado con sangre.\n"
+                    "Sangre que sale de los grifos que has dejado abiertos. Una figura emerge y\n"
+                    "te atrapa. El dolor es inmenso. Y después, la oscuridad.",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else if baño1_g1abierto or baño1_g2abierto:
+            writeln "\nVuelves a entrar en el baño. Entonces ves el suelo encharcado con sangre.\n"
+                    "Sangre que sale del grifo que has dejado abierto. Una figura emerge y\n"
+                    "te atrapa. El dolor es inmenso. Y después, la oscuridad.",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else:
+            writeln "\nEntras en el baño. Ni te molestas en intentar encender la luz. Echas un\n"
+                    "vistazo y aparentemente todo sigue igual que como lo dejaste."
+        end
+    end
+    on exit:
+        let baño1_visitas = baño1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, coger, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Bombilla
+    #----------------------------------------------------------------------------
+    on "coger bombilla":
+        writeln "No la necesitas para nada. Y no te apetece ponerte a cambiarla ahora. Quizás\n"
+                "si tuvieras otra de repuesto, pero para ello tendrías que bajar al sótano."
+    end
+    on "usar bombilla|encender bombilla":
+        writeln "¿Para qué?, si no funciona la bombilla. Y al pensar en ello recuerdas\n"
+                "la cantidad de veces que te habrá dado problemas la maldita. La vida...\n"
+                "demasiados problemas... siempre."
+    end
+    on "mirar bombilla":
+        writeln "Aquella maldita bombilla... Cuando Eva vivía con él, nunca daba problemas.\n"
+                "Pero... desde aquel día... Bueno, digamos que la mitad del tiempo parpadeaba\n"
+                "de forma molesta, la otra mitad apenas se encendía y la otra mitad iluminaba\n"
+                "pobremente aquel miserable cuarto. Esa fortaleza de la soledad que resultaba\n"
+                "ser tu baño..."
+    end
+    #----------------------------------------------------------------------------
+    # Retrete
+    #----------------------------------------------------------------------------
+    on "coger retrete|coger wc|coger water":
+        writeln "Preferirías dejarlo en su sitio... Aunque hay días que sientes que todo, lo\n"
+                "que hay en la casa, lo destrozarías y le prenderías fuego. Te sientes cansado."
+    end
+    on "usar retrete|usar wc|usar water":
+        writeln "No tienes ganas de hacer ninguna de esas necesidades fisiológicas que te\n"
+                "podrían llevar a usar el retrete. Quizás más tarde."
+    end
+    on "mirar retrete|mirar wc|mirar water":
+        writeln "Una taza del water normal y corriente. Antes teníais... tenías otra. Pero...\n"
+                "Digamos que hubo que cambiarla porque se rompió."
+    end
+    #----------------------------------------------------------------------------
+    # Espejo-armario
+    #----------------------------------------------------------------------------
+    on "coger espejo|coger armario":
+        if cara_lavada:
+            writeln "Después de aquella visión, no te faltan ganas de coger el espejo y tirarlo al\n"
+                    "suelo con furia y amarga rabia. Pero sólo lograrías más problemas."
+        else:
+            writeln "¿Y arrancarlo de la pared? No parece en absoluto algo oportuno."
+        end
+    end
+    on "abrir espejo|abrir armario":
+        if baño1_a1abierto:
+            writeln "Ya está abierto el armario-espejo."
+        else:
+            writeln "Te acercas y abres la puerta del espejo-armario.",
+            let baño1_a1abierto = true
+        end
+    end
+    on "cerrar espejo|cerrar armario":
+        if baño1_a1abierto:
+            writeln "Te acercas y cierras la puerta del espejo-armario.",
+            let baño1_a1abierto = false
+        else:
+            writeln "Ya está cerrado el armario-espejo."
+        end
+    end
+    on "usar armario":
+        if baño1_a1abierto:
+            writeln "Te acercas y cierras la puerta del espejo-armario.",
+            let baño1_a1abierto = false
+        else:
+            writeln "Te acercas y abres la puerta del espejo-armario.",
+            let baño1_a1abierto = true
+        end
+    end
+    on "mirar armario":
+        if baño1_a1abierto:
+            writeln "Al mirar dentro del armario ves tus cosas de limpieza e higiene personal, así\n"
+                    "como algunos medicamentos. En particular te fijas en el bote de pastillas\n"
+                    "tranquilizantes, que viene recetando el médico desde hace unos meses."
+        else:
+            writeln "Es el espejo-armario del baño, donde guardas tus cosas de limpieza e higiene\n"
+                    "personal, así como medicamentos en ocasiones."
+        end
+    end
+    on "mirar espejo|usar espejo":
+        if baño1_a1abierto:
+            writeln "Al mirar dentro del armario ves tus cosas de limpieza e higiene personal, así\n"
+                    "como algunos medicamentos. En particular te fijas en el bote de pastillas\n"
+                    "tranquilizantes, que viene recetando el médico desde hace unos meses."
+        else if cara_lavada:
+            writeln "No te gusta mirarte en el espejo normalmente. Y ahora después de aquella\n"
+                    "visión, al lavarte la cara, ni siquiera te atreves a intentarlo."
+        else:
+            writeln "Lo cierto es que no te gusta mucho mirarte al espejo. No soportas ver tu\n"
+                    "reflejo. Tu rostro, tu cara. A duras penas echas un vistazo cuando te lavas\n"
+                    "los dientes. Y lo cierto es que no recuerdas ya desde hace cuanto tiempo que\n"
+                    "te sientes así."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Bote de pastillas
+    #----------------------------------------------------------------------------
+    on "coger pastillas|coger bote":
+        if baño1_a1abierto and baño1_pastillas:
+            writeln "Te acercas al armario para coger el bote de pastillas tranquilizantes. Nunca\n"
+                    "se sabe cuando puedas necesitar tomar un par de ellas o tres.",
+            let baño1_pastillas = false,
+            invadd pastillas
+        else:
+            writeln "No ves ningún bote de pastillas que te interese en ese momento en el baño."
+        end
+    end
+    on "abrir pastillas|abrir bote":
+        if baño1_a1abierto and baño1_pastillas:
+            writeln "No necesitas abrir el bote de pastillas tranquilizantes. ¿Y luego qué harías?\n"
+                    "¿Dejarlo abierto sin más en el armario?"
+        else:
+            writeln "No ves ningún bote de pastillas que te interese abrir en el baño."
+        end
+    end
+    on "cerrar pastillas|cerrar bote":
+        if baño1_a1abierto and baño1_pastillas:
+            writeln "No necesitas cerrar el bote de pastillas tranquilizantes. De primeras porque\n"
+                    "ya está cerrado. Y segundo porque no tiene sentido dejarlo abierto allí en el\n"
+                    "armario-espejo del baño."
+        else:
+            writeln "No ves ningún bote de pastillas que te interese cerrar en el baño."
+        end
+    end
+    on "usar pastillas|tomar pastillas|usar bote|tomar bote":
+        if baño1_a1abierto and baño1_pastillas:
+            writeln "Piensas que sería mejor coger el bote de pastillas. Y luego utilizarlo cuando\n"
+                    "fuera realmente necesario... Si por ti fuera, desearías que fuera nunca."
+        else:
+            writeln "No ves en el baño ningún bote de pastillas que te interese usar."
+        end
+    end
+    on "mirar pastillas|mirar bote":
+        if baño1_a1abierto and baño1_pastillas:
+            writeln "Dentro del armario del baño ves que todavía queda un bote de pastillas, que\n"
+                    "sirven como tranquilizantes para cuando te da un ataque de nervios o de\n"
+                    "ansiedad. Por desgracia, suele ser algo regular y a menudo."
+        else:
+            writeln "No ves ningún bote de pastillas que te interesen en el baño."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta
+    #----------------------------------------------------------------------------
+    on "ir dormitorio|cruzar dormitorio|ir puerta|cruzar puerta|usar puerta":
+        if dorm1_p2abierta:
+            writeln "Cruzas la puerta dirigiéndote hacia el dormitorio.",
+            goto dormitorio1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir baño|abrir puerta":
+        if dorm1_p2abierta:
+            writeln "Ya está abierta la puerta del baño."
+        else:
+            writeln "Te acercas y abres la puerta del baño.",
+            let dorm1_p2abierta = true
+        end
+    end
+    on "cerrar baño|cerrar puerta":
+        if dorm1_p2abierta:
+            writeln "Te acercas y cierras la puerta del baño.",
+            let dorm1_p2abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del baño."
+        end
+    end
+    on "mirar baño|mirar puerta":
+        if dorm1_p2abierta:
+            writeln "Te acercas un poco más a la puerta del baño y observas a través de la misma\n"
+                    "lo que hay al otro lado. El dormitorio sigue igual que como lo dejaste. La\n"
+                    "luz, de la luna llena, lo inunda todo de forma fría y tibia."
+        else:
+            writeln "Te acercas un poco más a la puerta del baño, pero al estar cerrada solo\n"
+                    "logras mirarla. Desde luego no hay nada que destacar de la misma."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Grifo de la bañera
+    #----------------------------------------------------------------------------
+    on "coger grifo bañera":
+        writeln "Aunque tuvieras la fuerza para arrancarlo de su sitio, no quieres llevarte\n"
+                "contigo el grifo de la bañera."
+    end
+    on "abrir grifo bañera":
+        if baño1_g2abierto:
+            writeln "Ya está abierto el grifo de la bañera."
+        else:
+            writeln "Te acercas y abres el grifo de la bañera.",
+            let baño1_g2abierto = true
+        end
+    end
+    on "cerrar grifo bañera":
+        if baño1_g2abierto:
+            writeln "Te acercas y cierras el grifo de la bañera.",
+            let baño1_g2abierto = false
+        else:
+            writeln "Ya está cerrado el grifo de la bañera."
+        end
+    end
+    on "usar grifo bañera":
+        if baño1_g2abierto:
+            writeln "Te acercas y cierras el grifo de la bañera.",
+            let baño1_g2abierto = false
+        else:
+            writeln "Te acercas y abres el grifo de la bañera.",
+            let baño1_g2abierto = true
+        end
+    end
+    on "mirar grifo bañera":
+        writeln "No es más que el grifo de la bañera. No tiene nada de especial."
+    end
+    #----------------------------------------------------------------------------
+    # Bañera
+    #----------------------------------------------------------------------------
+    on "coger bañera":
+        writeln "Ni tienes las fuerzas, ni tienes las ganas para hacer algo así."
+    end
+    on "usar bañera":
+        writeln "No te apetece darte un baño, ni una ducha en este momento. Aunque no recuerdas\n"
+                "bien si ayer te duchaste o no. Todos los días te parecen el mismo... desde\n"
+                "hace mucho tiempo ya..."
+    end
+    on "mirar bañera":
+        if baño1_msjbañera:
+            writeln "Te acercas a la bañera y te fijas en ella, para darte cuenta de que hay como\n"
+                    "algo escrito en ella. Apenas se nota, pero dirías que está en rojo y entonces\n"
+                    "al leerlo ves que pone: \"AYÚDAME\". Por un momento te asustas y te echas para\n"
+                    "atrás aterrorizado. Pero vuelves a mirar con cautela y ya no está el mensaje.\n"
+                    "Quizás... han sido todo sólo imaginaciones tuyas... quizás...",
+            let baño1_msjbañera = false,
+            let nervioso = true
+        else:
+            writeln "Te acercas a la bañera y te fijas en ella otra vez. Sin embargo ya no está el\n"
+                    "mensaje que te había parecido ver. Por un momento creíste que había escrito en\n"
+                    "sangre la palabra \"AYÚDAME\"."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Grifo del lavabo
+    #----------------------------------------------------------------------------
+    on "coger grifo|coger grifo lavabo|coger grifo lavamanos":
+        writeln "Aunque tuvieras la fuerza para arrancarlo de su sitio, no quieres llevarte\n"
+                "contigo el grifo del lavabo."
+    end
+    on "abrir grifo|abrir grifo lavabo|abrir grifo lavamanos":
+        if baño1_g1abierto:
+            writeln "Ya está abierto el grifo del lavabo."
+        else:
+            writeln "Te acercas y abres el grifo del lavabo.",
+            let baño1_g1abierto = true
+        end
+    end
+    on "cerrar grifo|cerrar grifo lavabo|cerrar grifo lavamanos":
+        if baño1_g1abierto:
+            writeln "Te acercas y cierras el grifo del lavabo.",
+            let baño1_g1abierto = false
+        else:
+            writeln "Ya está cerrado el grifo del lavabo."
+        end
+    end
+    on "usar grifo|usar grifo lavabo|usar grifo lavamanos":
+        if baño1_g1abierto:
+            writeln "Te acercas y cierras el grifo del lavabo.",
+            let baño1_g1abierto = false
+        else:
+            writeln "Te acercas y abres el grifo del lavabo.",
+            let baño1_g1abierto = true
+        end
+    end
+    on "mirar grifo|mirar grifo lavabo|mirar grifo lavamanos":
+        writeln "No es más que el grifo del lavabo. No tiene nada de especial."
+    end
+    #----------------------------------------------------------------------------
+    # Lavabo/lavamanos
+    #----------------------------------------------------------------------------
+    on "coger lavabo|coger lavamanos":
+        writeln "Preferirías dejarlo en su sitio... ¿Para qué ibas a querer llevar el lavabo\n"
+                "a cuestas por toda la casa? No tiene mucho sentido, o eso crees."
+    end
+    on "usar lavabo|usar lavamanos|lavar cara|lavarse cara":
+        if cara_lavada:
+            writeln "Ya tienes la cara lavada. Además sientes miedo de volver a hacerlo."
+        else if baño1_g1abierto:
+            if baño1_a1abierto:
+                writeln "El armario está abierto y, dado que quieres lavarte la cara y las manos,\n"
+                        "decides volverlo a cerrar. Así podrás mirarte al espejo mientras te lavas.\n"
+                        "No es que disfrutes al mirarte en él, pero tampoco podrías lavarte a ciegas.\n",
+                let baño1_a1abierto = false
+            end,
+            writeln "Metes tus manos en el agua, para lavarte la cara y quitarte las legañas. Bajas\n"
+                    "tu rostro y lo mojas. Sientes un frío acuchillante, incómodo. Entonces te\n"
+                    "vuelves a poner erguido y te miras al espejo. Para tu sorpresa tienes la cara\n"
+                    "completamente manchada de sangre. Gritas de pánico; pero, -al pestañear-, la\n"
+                    "imagen desaparece. Solo ha sido tu imaginación... tu imaginación... Quizás\n"
+                    "no estaría de más tomar un tranquilizante.",
+            let cara_lavada = true,
+            let nervioso = true
+        else:
+            writeln "El grifo está cerrado. No puedes lavarte las manos, ni la cara así."
+        end
+    end
+    on "mirar lavabo|mirar lavamanos":
+        writeln "No es más que un lavabo normal y corriente. Os solíais lavar los dientes\n"
+                "juntos. Siempre tan unidos. Ella siempre riendo. Ya no hay risas."
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar baño|mirar cuarto|mirar habitación|mirar habitacion":
+        writeln "Por una pequeña ventana entra tímidamente un poco de luz. El baño entero está\n"
+                "en la penumbra. Se distinguen las formas ligeramente, así como algunas\n"
+                "tonalidades. Se podía notar la diferencia entre las más oscuras y las más\n"
+                "claras. La bombilla en el techo que no funciona, el lavabo y su grifo, el\n"
+                "espejo-armario en el que rara vez te miras, la bañera vacía y el solitario\n"
+                "retrete, conformaban todo ello lo que allí había. Siempre te pareció un lugar\n"
+                "donde te sentías aislado del mundo exterior. A veces eso era bueno... Otras\n"
+                "veces... en fin..."
+    end
+end
+
+#================================================================================
+# Despacho/biblioteca de la casa:
+#================================================================================
+room biblioteca1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if bibl1_visitas = 0:
+            writeln "\nEntras por primera vez en mucho tiempo al despacho de la casa que, en cierto\n"
+                    "modo, también hacía las funciones de biblioteca. Allí estaban todos los libros\n"
+                    "de la casa. Casi todos ellos pertenecían a Eva. Tú no era muy dado a las\n"
+                    "actividades culturales. Eras más como... como los demás hombres, más de\n"
+                    "deportes que de florituras, filosofía y fantasías."
+        else:
+            writeln "\nVuelves a entrar en el despacho. Miras el cuarto por encima rápidamente,\n"
+                    "sintiendo pena y congoja al posar tu vista sobre aquellos libros. Otro de\n"
+                    "tantos recuerdos de lo que fue una vida feliz. Al menos esa es tu ya débil\n"
+                    "memoria, de la que en ocasiones no sabes si estar demasiado seguro."
+        end
+    end
+    on exit:
+        let bibl1_visitas = bibl1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, coger."
+    end
+    #----------------------------------------------------------------------------
+    # Llave
+    #----------------------------------------------------------------------------
+    on "coger llave":
+        if bibl1_llavepequ and bibl1_llavesuel:
+            writeln "Sorprendido, -por ver cómo se caía, desde dentro de la biblia, aquella llave-,\n"
+                    "te agachas a recogerla. A medida que te vuelves a levantar, con ella en la\n"
+                    "mano, te percatas de lo extraño y poco familiar que te parece aquel objeto.",
+            let bibl1_llavepequ = false,
+            let bibl1_llavesuel = false,
+            invadd llavepequeña
+        else:
+            writeln "No ves ninguna llave que poder coger por el cuarto."
+        end
+    end
+    on "usar llave":
+        if bibl1_llavepequ and bibl1_llavesuel:
+            writeln "Ahí, tirada en el suelo, no puedes usarla. Sería mejor recogerla primero."
+        else:
+            writeln "No ves ninguna llave que poder usar por el cuarto."
+        end
+    end
+    on "mirar llave":
+        if bibl1_llavepequ and bibl1_llavesuel:
+            writeln "Tirada en el suelo se encuentra una misteriosa llave, que previamente se\n"
+                    "hallaba escondida dentro de la biblia que perteneció a Eva. No lo puedes\n"
+                    "apreciar demasiado bien con la escasa luz y la distancia, pero dirías que\n"
+                    "no te suena demasiado. ¿Qué significaría eso?"
+        else:
+            writeln "Miras y no ves ninguna llave por el cuarto."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Biblia
+    #----------------------------------------------------------------------------
+    on "coger biblia|abrir biblia|usar biblia":
+        if bibl1_llavepequ and (not bibl1_llavesuel):
+            writeln "La tentación te puede y agarras la biblia para echarle un ojo, con quizás la\n"
+                    "esperanza de poder encontrar alguna nota de ella, descubrir algo nuevo. Como\n"
+                    "si aquello la pudiera traer de vuelta. Sin embargo al abrirla notas que se\n"
+                    "cae algo al suelo. Lo miras fijamente y te das cuenta de que se trata de una\n"
+                    "llave. ¿Qué haría dentro de aquel libro?",
+            let bibl1_llavesuel = true
+        else:
+            writeln "La tentación se te ha pasado, tras la sorpresa de ver caer la llave.\n"
+                    "Prefieres dejar la biblia en su sitio. Mejor dejar a los muertos descansar."
+        end
+    end
+    on "cerrar biblia":
+        writeln "Ya está cerrada en la estantería, junto a los demás libros."
+    end
+    on "mirar biblia":
+        writeln "Debía ser la biblia de Eva. Realmente no era muy diferente de las típicas que\n"
+                "se venden en todos los lugares. Negra con una cruz dorada en el lomo. Supones\n"
+                "que realmente no hace falta mucho más. Lo importante está dentro."
+    end
+    #----------------------------------------------------------------------------
+    # Libros
+    #----------------------------------------------------------------------------
+    on "coger libros":
+        writeln "Demasiados libros. Demasiado peso. Demasiadas pocas ganas de cargar con\n"
+                "ellos. Y además prefieres dejarlo como ella lo dejó."
+    end
+    on "abrir libros|usar libros":
+        writeln "Realmente no te apetece coger un libro al azar para leerlo. Nunca fuiste muy\n"
+                "entusiasta de la lectura, y no te sientes preparado para empezar ahora."
+    end
+    on "cerrar libros":
+        writeln "Ya están cerrados y ordenados en la estantería."
+    end
+    on "mirar libros":
+        writeln "Allí, en unas cuantas estanterías, estaban todos los libros que habían\n"
+                "pertenecido a Eva. Eran una especie de tesoro para ella. Algunos los había\n"
+                "tenido desde su infancia. Es curioso la cantidad de cosas que dejan las\n"
+                "personas tras su \"partida\". En medio de todo aquello te das cuenta de que hay\n"
+                "una biblia. Ella era una persona bastante creyente e inteligente. Alguno\n"
+                "hubiera afirmado que aquello era una contradicción...\n\n"
+                "La gente habla demasiado..."
+    end
+    #----------------------------------------------------------------------------
+    # Escritorio
+    #----------------------------------------------------------------------------
+    on "coger escritorio":
+        writeln "Pesa demasiado. Y no quieres moverlo de su sitio. Es un recuerdo."
+    end
+    on "abrir escritorio":
+        if bibl1_e1abierta:
+            writeln "Ya está abierto el cajón principal del escritorio."
+        else:
+            writeln "Te acercas y abres el cajón principal del escritorio.",
+            let bibl1_e1abierta = true
+        end
+    end
+    on "cerrar escritorio":
+        if bibl1_e1abierta:
+            writeln "Te acercas y cierras el cajón principal del escritorio.",
+            let bibl1_e1abierta = false
+        else:
+            writeln "Ya está cerrado el cajón principal del escritorio."
+        end
+    end
+    on "usar escritorio":
+        if bibl1_e1abierta:
+            writeln "Te acercas y cierras el cajón principal del escritorio.",
+            let bibl1_e1abierta = false
+        else:
+            writeln "Te acercas y abres el cajón principal del escritorio.",
+            let bibl1_e1abierta = true
+        end
+    end
+    on "mirar escritorio":
+        if bibl1_e1abierta:
+            writeln "El cajón principal estaba abierto y solo había papeles viejos con apuntes o\n"
+                    "anotaciones varias que Eva habría realizado tiempo atrás."
+        else:
+            writeln "Durante horas y horas, ella se sentaba allí a leer libros y más libros. No le\n"
+                    "gustaba la tele, decía que atrofiaba el cerebro. Para hacerla rabiar, yo le\n"
+                    "decía que más atrofiaba la religión burlándome de ella y sus creencias. Y me\n"
+                    "respondía enseñándome la lengua, mientras decía que yo ardería en el infierno\n"
+                    "por apóstata y ateo. A veces piensas... que tenía razón..."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        if bibl1_p1abierta:
+            writeln "Cruzas la puerta dirigiéndote hacia el oscuro pasillo.",
+            goto pasillo2
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta":
+        if bibl1_p1abierta:
+            writeln "Ya está abierta la puerta del cuarto."
+        else:
+            writeln "Te acercas y abres la puerta del cuarto.",
+            let bibl1_p1abierta = true
+        end
+    end
+    on "cerrar puerta":
+        if bibl1_p1abierta:
+            writeln "Te acercas y cierras la puerta del cuarto.",
+            let bibl1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del cuarto."
+        end
+    end
+    on "mirar puerta":
+        if bibl1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del cuarto. Al mirar a través de la misma\n"
+                    "te encuentras observando el oscuro pasillo de la primera planta. Prácticamente\n"
+                    "no se puede apreciar ningún detalle, las tinieblas lo cubren todo."
+        else:
+            writeln "Te acercas un poco más a la puerta del cuarto, pero al estar cerrado solo\n"
+                    "logras mirarla. Dirías que no hay nada a destacar de la misma."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar cuarto|mirar habitación|mirar habitacion":
+        if bibl1_llavesuel:
+            writeln "El escritorio seguía en su sitio, así como los libros en la estantería. Sin\n"
+                    "embargo había un nuevo elemento extraño en el suelo. Una misteriosa llave\n"
+                    "pequeña que no recordabas haber visto nunca."
+        else:
+            writeln "El despacho. Echando una mirada pareciera que nada hubiera cambiado, excepto\n"
+                    "el polvo que se acumulaba más de lo habitual. No entrabas a limpiar mucho\n"
+                    "dicho lugar. Allí Eva pasaba horas leyendo libros, sentada en el escritorio.\n"
+                    "Un aire de melancolía solía tener su cara cuando se evadía en su mundo. Al\n"
+                    "volver sonreía plácidamente, como si no pasara nada malo. Nunca pasaba nada\n"
+                    "malo en nuestra vida."
+        end
+    end
+end
+
+#================================================================================
+# Pasillo de la planta 1 de la casa:
+#================================================================================
+room pasillo1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        writeln "\nSales del cuarto al pasillo de la primera planta. Te notas algo intranquilo.\n"
+                "No hay luz y te cuesta ver el camino hacia las demás partes de la casa."
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar."
+    end
+    #----------------------------------------------------------------------------
+    # Puerta del dormitorio
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta|ir dormitorio|cruzar dormitorio|usar dormitorio":
+        if dorm1_p1abierta:
+            writeln "Cruzas la puerta dirigiéndote de vuelta al dormitorio.",
+            goto dormitorio1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta|abrir dormitorio":
+        if dorm1_p1abierta:
+            writeln "Ya está abierta la puerta del dormitorio."
+        else:
+            writeln "Te acercas y abres la puerta del dormitorio.",
+            let dorm1_p1abierta = true
+        end
+    end
+    on "cerrar puerta|cerrar dormitorio":
+        if dorm1_p1abierta:
+            writeln "Te acercas y cierras la puerta del dormitorio. Ahora estás completamente a\n"
+                    "oscuras. Te sientes bastante ansioso al no poder ver nada.",
+            let dorm1_p1abierta = false,
+            let nervioso = true
+        else:
+            writeln "Ya está cerrada la puerta del dormitorio."
+        end
+    end
+    on "mirar puerta|mirar dormitorio":
+        if dorm1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del dormitorio y observas a través de la\n"
+                    "misma lo que hay al otro lado. El dormitorio sigue igual que como lo dejaste.\n"
+                    "La luz, de la luna llena, lo inunda todo de forma fría y tibia."
+        else:
+            writeln "Te acercas un poco más a la puerta del dormitorio, pero al estar a oscuras\n"
+                    "no logras ver absolutamente nada."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar pasillo|mirar habitación|mirar habitacion":
+        if dorm1_p1abierta:
+            writeln "Apenas se ve nada en el pasillo. Además, al estar recién levantado, ves las\n"
+                    "cosas un tanto borrosas, dificultando el asunto todavía más. Quizás debieras\n"
+                    "lavarte la cara un poco."
+        else:
+            writeln "No ves nada. Todo es oscuridad."
+        end
+    end
+end
+
+room pasillo2:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if (lastroom) = "dormitorio1":
+            writeln "\nSales del cuarto al pasillo de la primera planta. Te notas algo intranquilo.\n"
+                    "No hay luz, pero ahora que te lavaste la cara y tras un rato mirando hacia la\n"
+                    "oscuridad, empiezas a notar algunas formas al final del pasillo."
+        else if (lastroom) = "biblioteca1":
+            writeln "\nSales del despacho al pasillo de la primera planta. No te sientes tranquilo.\n"
+                    "No hay luz, pero ahora que te lavaste la cara y tras un rato mirando hacia la\n"
+                    "oscuridad, empiezas a notar algunas formas al final del pasillo."
+        else:
+            writeln "\nVuelves al pasillo de la primera planta. Sigues sin estar tranquilo. No\n"
+                    "hay luz, pero ahora que te lavaste la cara y tras un rato mirando hacia la\n"
+                    "oscuridad, empiezas a notar algunas formas al final del pasillo."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, bajar, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Puerta del dormitorio
+    #----------------------------------------------------------------------------
+    on "ir dormitorio|cruzar dormitorio|usar dormitorio":
+        if dorm1_p1abierta:
+            writeln "Cruzas la puerta dirigiéndote de vuelta al dormitorio.",
+            goto dormitorio1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir dormitorio":
+        if dorm1_p1abierta:
+            writeln "Ya está abierta la puerta del dormitorio."
+        else:
+            writeln "Te acercas y abres la puerta del dormitorio.",
+            let dorm1_p1abierta = true
+        end
+    end
+    on "cerrar dormitorio":
+        if dorm1_p1abierta:
+            if bibl1_p1abierta:
+                writeln "Te acercas y cierras la puerta del dormitorio. No estás completamente a\n"
+                        "oscuras, porque al fondo está la puerta del despacho abierta.",
+                let dorm1_p1abierta = false
+            else:
+                writeln "Te acercas y cierras la puerta del dormitorio. Ahora estás completamente a\n"
+                        "oscuras. Te sientes bastante ansioso al no poder ver nada.",
+                let dorm1_p1abierta = false,
+                let nervioso = true
+            end
+        else:
+            writeln "Ya está cerrada la puerta del dormitorio."
+        end
+    end
+    on "mirar dormitorio":
+        if dorm1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del dormitorio y observas a través de la\n"
+                    "misma lo que hay al otro lado. El dormitorio sigue igual que como lo dejaste.\n"
+                    "La luz, de la luna llena, lo inunda todo de forma fría y tibia."
+        else if bibl1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del dormitorio, pero como apenas hay luz\n"
+                    "no logras ver nada interesante. Además no deja de ser una puerta sin más."
+        else:
+            writeln "Te acercas un poco más a la puerta del dormitorio, pero al estar a oscuras\n"
+                    "no logras ver absolutamente nada."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta del despacho
+    #----------------------------------------------------------------------------
+    on "ir despacho|cruzar despacho|usar despacho":
+        if bibl1_p1abierta:
+            if bibl1_visitas < 1:
+                writeln "Cruzas la puerta para entrar al despacho."
+            else:
+                writeln "Cruzas la puerta dirigiéndote de vuelta al despacho."
+            end,
+            goto biblioteca1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir despacho":
+        if bibl1_p1abierta:
+            writeln "Ya está abierta la puerta del despacho."
+        else:
+            writeln "Te acercas y abres la puerta del despacho.",
+            let bibl1_p1abierta = true
+        end
+    end
+    on "cerrar despacho":
+        if bibl1_p1abierta:
+            if dorm1_p1abierta:
+                writeln "Te acercas y cierras la puerta del despacho. No estás completamente a\n"
+                        "oscuras, porque al fondo está la puerta del dormitorio abierta.",
+                let bibl1_p1abierta = false
+            else:
+                writeln "Te acercas y cierras la puerta del despacho. Ahora estás completamente a\n"
+                        "oscuras. Te sientes bastante ansioso al no poder ver nada.",
+                let bibl1_p1abierta = false,
+                let nervioso = true
+            end
+        else:
+            writeln "Ya está cerrada la puerta del despacho."
+        end
+    end
+    on "mirar despacho":
+        if bibl1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del despacho y observas a través de la\n"
+                    "misma lo que hay al otro lado. El despacho sigue igual que esta mañana y que\n"
+                    "ayer, y que todos los anteriores días de las últimas semanas, meses... Antes\n"
+                    "era un cuarto con vida. Ahora es más bien un santuario a una época pasada.\n"
+                    "Una época que no volverá jamás."
+        else if dorm1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del despacho, pero como apenas hay luz\n"
+                    "no logras ver nada interesante. Además no deja de ser una puerta sin más."
+        else:
+            writeln "Te acercas un poco más a la puerta del despacho, pero al estar a oscuras\n"
+                    "no logras ver absolutamente nada."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta indefinida
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        writeln "Piensas en cruzar una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    on "abrir puerta":
+        writeln "Piensas en abrir una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    on "cerrar puerta":
+        writeln "Piensas en cerrar una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    on "mirar puerta":
+        writeln "Piensas en mirar una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    #----------------------------------------------------------------------------
+    # Escaleras
+    #----------------------------------------------------------------------------
+    on "ir escaleras|bajar escaleras|usar escaleras":
+        writeln "Con mucho cuidado de no tropezarte con nada, debido a la oscuridad, cruzas\n"
+                "el pasillo para bajar poco a poco las escaleras hasta el recibidor.",
+        goto recibidor1
+    end
+    on "mirar escaleras":
+        writeln "En uno de los extremos del pasillo se encuentran las escaleras que bajan a la\n"
+                "planta baja, concretamente al recibidor de la casa. Son muy empinadas y eso\n"
+                "te ha supuesto más de un amargo disgusto en esta perra vida."
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar pasillo|mirar habitación|mirar habitacion":
+        if dorm1_p1abierta or bibl1_p1abierta:
+            writeln "Apenas alcanzas a ver nada. Entre lo poco que percibes está la puerta del\n"
+                    "dormitorio, la del despacho y las escaleras que bajan a la planta baja."
+        else:
+            writeln "No ves nada. Todo es oscuridad."
+        end
+    end
+end
+
+#================================================================================
+# Pasillo/recibidor de la planta baja de la casa:
+#================================================================================
+room recibidor1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        writeln "\nA diferencia del pasillo de la primera planta, el recibidor sí se encontraba\n"
+                "un poco iluminado por la luz de la calle. Lo único que se podía apreciar entre\n"
+                "las sombras de la noche, eran las puertas de los demás cuartos de la planta\n"
+                "baja. Aunque parecía estar todo tranquilo, no puedes evitar sentirte algo\n"
+                "tenso en ese momento, allí abajo."
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, subir, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Puerta de la cocina
+    #----------------------------------------------------------------------------
+    on "ir cocina|cruzar cocina|usar cocina":
+        if coci1_p1abierta:
+            if coci1_visitas < 1:
+                writeln "Cruzas la puerta para entrar a la cocina."
+            else:
+                writeln "Cruzas la puerta dirigiéndote de vuelta a la cocina."
+            end,
+            goto cocina1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir cocina":
+        if coci1_p1abierta:
+            writeln "Ya está abierta la puerta de la cocina."
+        else:
+            writeln "Te acercas y abres la puerta de la cocina.",
+            let coci1_p1abierta = true
+        end
+    end
+    on "cerrar cocina":
+        if coci1_p1abierta:
+            writeln "Te acercas y cierras la puerta de la cocina.",
+            let coci1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta de la cocina."
+        end
+    end
+    on "mirar cocina":
+        if coci1_p1abierta:
+            writeln "Te acercas un poco más a la puerta de la cocina y observas a través de la\n"
+                    "misma lo que hay al otro lado. La cocina comunica con el salón con una\n"
+                    "especie de ventana interior, con lo que llega algo de la luz que entra por\n"
+                    "las ventanas del mismo. A pesar de ello, la cocina se encuentra más en la\n"
+                    "penumbra, tirando hacia la oscuridad."
+        else:
+            writeln "Te acercas un poco más a la puerta de la cocina, pero, -como tampoco hay\n"
+                    "mucha iluminación en el recibidor-, no logras ver nada interesante. Además\n"
+                    "no deja de ser una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta del salón
+    #----------------------------------------------------------------------------
+    on "ir salón|cruzar salón|usar salón|ir salon|cruzar salon|usar salon":
+        if salo1_p1abierta:
+            if salo1_visitas < 1:
+                writeln "Cruzas la puerta para entrar al salón."
+            else:
+                writeln "Cruzas la puerta dirigiéndote de vuelta al salón."
+            end,
+            goto salón1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir salón|abrir salon":
+        if salo1_p1abierta:
+            writeln "Ya está abierta la puerta del salón."
+        else:
+            writeln "Te acercas y abres la puerta del salón.",
+            let salo1_p1abierta = true
+        end
+    end
+    on "cerrar salón|cerrar salon":
+        if salo1_p1abierta:
+            writeln "Te acercas y cierras la puerta del salón.",
+            let salo1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del salón."
+        end
+    end
+    on "mirar salón|mirar salon":
+        if salo1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del salón y observas a través de la\n"
+                    "misma lo que hay al otro lado. La salón comunica con la cocina con una\n"
+                    "especie de ventana interior, pero no se ve bien lo que hay al otro lado.\n"
+                    "Las ventanas del salón iluminaban la estancia casi con tanta claridad como\n"
+                    "ocurría con tu dormitorio. A simple vista todo parecía estar tranquilo."
+        else:
+            writeln "Te acercas un poco más a la puerta del salón, pero, -como tampoco hay mucha\n"
+                    "iluminación en el recibidor-, no logras ver nada interesante. Además no deja\n"
+                    "de ser una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta de la sótano
+    #----------------------------------------------------------------------------
+    on "ir sótano|cruzar sótano|usar sótano|ir sotano|cruzar sotano|usar sotano":
+        if sota1_p1abierta:
+            if nervioso:
+                writeln "Te asomas a la puerta del sótano, pero no te atreves a cruzarla. Está\n"
+                        "demasiado oscuro y tú demasiado nervioso como para bajar. Sabes que es\n"
+                        "irracional ponerse así, pero eso no cambia que te sientes como te sientes."
+            else:
+                if sota1_visitas < 1:
+                    writeln "Cruzas la puerta para entrar al sótano."
+                else:
+                    writeln "Cruzas la puerta dirigiéndote de vuelta al sótano."
+                end,
+                if (invhas cerillas):
+                    goto sótano2
+                else:
+                    goto sótano1
+                end
+            end
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir sótano|abrir sotano":
+        if sota1_p1abierta:
+            writeln "Ya está abierta la puerta del sótano."
+        else if sota1_c1abierta:
+            writeln "Te acercas y abres la puerta del sótano.",
+            let sota1_p1abierta = true
+        else:
+            writeln "Te acercas e intentas abrir la puerta, pero parece ser que está cerrada con\n"
+                    "llave. Deberías usar la llave del sótano para abrirla."
+        end
+    end
+    on "cerrar sótano|cerrar sotano":
+        if sota1_p1abierta:
+            writeln "Te acercas y cierras la puerta del sótano.",
+            let sota1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del sótano."
+        end
+    end
+    on "mirar sótano|mirar sotano":
+        if sota1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del sótano y echas un vistazo al otro lado.\n"
+                    "La más profunda y absoluta oscuridad se asoma ante ti. No se puede ver nada de\n"
+                    "nada. Quizás abajo, con los ventanucos de la base de la casa, llegue algo de\n"
+                    "luz a dicha habitación. Pero desde aquella puerta no se percibía nada, salvo\n"
+                    "una inquietante sensación de opresión e incomodidad."
+        else:
+            writeln "Te acercas un poco más a la puerta del sótano, pero, -como tampoco hay mucha\n"
+                    "iluminación en el recibidor-, no logras ver nada interesante. Además no deja\n"
+                    "de ser una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta de la calle
+    #----------------------------------------------------------------------------
+    on "ir calle|cruzar calle|usar calle":
+        writeln "La puerta está cerrada, no puedes cruzarla."
+    end
+    on "abrir calle":
+        writeln "No son horas como para salir a la calle. Por no hablar del insoportable frío\n"
+                "que hará allí fuera en este mismo momento."
+    end
+    on "cerrar calle":
+        writeln "Ya está cerrada la puerta de la calle."
+    end
+    on "mirar calle":
+        writeln "Te acercas un poco más a la puerta de la calle, pero, -como tampoco hay mucha\n"
+                "iluminación en el recibidor-, no logras ver nada interesante. Además no deja\n"
+                "de ser una puerta sin más."
+    end
+    #----------------------------------------------------------------------------
+    # Puerta indefinida
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        writeln "Piensas en cruzar una de las puertas, pero no tienes claro cuál de ellas."
+    end
+    on "abrir puerta":
+        writeln "Piensas en abrir una de las puertas, pero no tienes claro cuál de ellas."
+    end
+    on "cerrar puerta":
+        writeln "Piensas en cerrar una de las puertas, pero no tienes claro cuál de ellas."
+    end
+    on "mirar puerta":
+        writeln "Piensas en mirar una de las puertas, pero no tienes claro cuál de ellas."
+    end
+    #----------------------------------------------------------------------------
+    # Escaleras
+    #----------------------------------------------------------------------------
+    on "ir escaleras|subir escaleras|usar escaleras":
+        writeln "Con mucho cuidado de no tropezarte con nada, debido a la oscuridad, cruzas\n"
+                "el recibidor para subir poco a poco las escaleras hasta la primera planta.",
+        goto pasillo2
+    end
+    on "mirar escaleras":
+        writeln "Al fondo del recibidor/pasillo se encuentran las escaleras que suben a la\n"
+                "primera planta. Son muy empinadas y eso te ha supuesto más de un amargo\n"
+                "disgusto en esta desgraciada vida."
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar recibidor|mirar pasillo|mirar habitación|mirar habitacion":
+        writeln "A diferencia del pasillo, de la primera planta, el recibidor recibía luz del\n"
+                "exterior a través de una especie de colorido ventanal sobre la puerta. De\n"
+                "todos modos poco había que ver. Solo estaban las escaleras por las que acababa\n"
+                "de bajar y las puertas de la cocina, el salón, el sótano y la calle."
+    end
+end
+
+#================================================================================
+# Cocina de la casa:
+#================================================================================
+room cocina1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if coci1_visitas = 0:
+            writeln "\nEntras en la cocina. Tampoco allí parece funcionar la luz. No parece\n"
+                    "funcionar en ninguna parte de la casa. Podría ser que hubiera que bajar al\n"
+                    "sótano a mirar si pasa algo con los plomos de la casa. Por suerte la ventana\n"
+                    "interior, que comunica la cocina con el salón, deja pasar un poco de luz a la\n"
+                    "instancia. Habría que tener cuidado para no tropezar con nada."
+        else if ((lastroom) = "despensa1") and (coci1_p1abierta):
+            writeln "\nVuelves a la cocina desde la despensa, cuando te percatas de que hay en\n"
+                    "cuarto la presencia de una figura sombría. A su espalda la puerta, de la\n"
+                    "cocina, abierta. No alcanzas a poder reconocerla y antes de siquiera\n"
+                    "ser consciente de lo que está ocurriendo, caes al suelo tras un golpe.\n"
+                    "Luego llega el dolor. Luego la sangre, que cubre todo el suelo.\n"
+                    "Y por último... La oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else:
+            writeln "\nVuelves a la cocina. La luz que inunda el salón llega tímidamente al cuarto.\n"
+                    "Aunque todo parece tranquilo, no puedes evitar sentirte intranquilo. No sabes\n"
+                    "exactamente qué es, pero notas como una presencia de algo observándote."
+        end
+    end
+    on exit:
+        let coci1_visitas = coci1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Puerta de la cocina
+    #----------------------------------------------------------------------------
+    on "ir puerta cocina|cruzar puerta cocina|usar puerta cocina|ir recibidor|cruzar recibidor|usar recibidor":
+        if coci1_p1abierta:
+            writeln "Cruzas la puerta dirigiéndote de vuelta al recibidor.",
+            goto recibidor1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta cocina|abrir recibidor":
+        if coci1_p1abierta:
+            writeln "Ya está abierta la puerta de la cocina."
+        else:
+            writeln "Te acercas y abres la puerta de la cocina.",
+            let coci1_p1abierta = true
+        end
+    end
+    on "cerrar puerta cocina|cerrar recibidor":
+        if coci1_p1abierta:
+            writeln "Te acercas y cierras la puerta de la cocina.",
+            let coci1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta de la cocina."
+        end
+    end
+    on "mirar puerta cocina|mirar recibidor":
+        if coci1_p1abierta:
+            writeln "Te acercas un poco más a la puerta de la cocina y observas a través de la\n"
+                    "misma lo que hay al otro lado. El lúgubre recibidor sigue tal como lo\n"
+                    "dejaste. Ello no te impide sentir como una opresión en el pecho, que te\n"
+                    "pidiera cerrar la puerta y esconderte."
+        else:
+            writeln "Te acercas un poco más a la puerta de la cocina, pero debido a la mala\n"
+                    "iluminación del cuarto, no logras ver nada interesante. Además no deja de\n"
+                    "ser una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta de la despensa
+    #----------------------------------------------------------------------------
+    on "ir despensa|cruzar despensa|usar despensa":
+        if coci1_p2abierta:
+            if desp1_visitas < 1:
+                writeln "Cruzas la puerta para entrar a la despensa."
+            else:
+                writeln "Cruzas la puerta dirigiéndote de vuelta a la despensa."
+            end,
+            goto despensa1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir despensa":
+        if coci1_p2abierta:
+            writeln "Ya está abierta la puerta de la despensa."
+        else:
+            writeln "Te acercas y abres la puerta de la despensa.",
+            let coci1_p2abierta = true
+        end
+    end
+    on "cerrar despensa":
+        if coci1_p2abierta:
+            writeln "Te acercas y cierras la puerta de la despensa.",
+            let coci1_p2abierta = false
+        else:
+            writeln "Ya está cerrada la puerta de la despensa."
+        end
+    end
+    on "mirar despensa":
+        if coci1_p2abierta:
+            writeln "Te acercas un poco más a la puerta de la despensa y observas a través de la\n"
+                    "misma. Lo único que ves es la típica despensa con comida enlatada y amontonada\n"
+                    "de forma inmisericordemente aleatoria. Nada nuevo bajo el cielo azul. No\n"
+                    "sueles entrar mucho allí, pues comes siempre fuera de casa desde que ella no\n"
+                    "está allí, contigo."
+        else:
+            writeln "Te acercas un poco más a la puerta de la despensa, pero debido a la mala\n"
+                    "iluminación de la cocina, no logras ver nada interesante. Además no deja de\n"
+                    "ser una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta indefinida
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        writeln "Piensas en cruzar una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    on "abrir puerta":
+        writeln "Piensas en abrir una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    on "cerrar puerta":
+        writeln "Piensas en cerrar una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    on "mirar puerta":
+        writeln "Piensas en mirar una de las dos puertas, pero no tienes claro cuál de ellas."
+    end
+    #----------------------------------------------------------------------------
+    # Ventana
+    #----------------------------------------------------------------------------
+    on "ir ventana|cruzar ventana|usar ventana":
+        writeln "Teniendo la puerta del salón en el recibidor, no entiendes qué podría llevarte\n"
+                "a entrar por la ventana de la cocina. Digamos que no sería práctico."
+    end
+    on "abrir ventana|cerrar ventana":
+        writeln "Realmente más que una ventana es una barra para comer en ella. Así que no\n"
+                "dispone de una puerta, -de madera o cristal-, para ser cerrada o abrirse,\n"
+                "dejando aislada la cocina del salón."
+    end
+    on "mirar ventana":
+        if tele_ataque:
+            writeln "Miras hacia la ventana, en dirección al salón, con bastante temor. Estás\n"
+                    "bastante nervioso tras la \"extraña\" aparición de la televisión. No sabes\n"
+                    "qué ha pasado, pero das gracias al Señor al ver que parece no ocurrir nada\n"
+                    "sobrenatural en la otra habitación."
+        else if nervioso:
+            writeln "Miras hacia la ventana, en dirección al salón. Estás algo nervioso por algunas\n"
+                    "de las cosas que te han pasado, hace unos cuantos minutos. Al entrar en la\n"
+                    "cocina no te habías percatado, pero escuchas un extraño ruido blanco. Entonces\n"
+                    "te fijas y descubres que la tele está encendida. Ello te sorprende y te\n"
+                    "alarma considerablemente."
+        else:
+            writeln "Miras hacia la ventana, en dirección al salón. Al entrar en la cocina no te\n"
+                    "habías percatado, pero escuchas un extraño ruido blanco. Entonces te fijas y\n"
+                    "descubres que la tele está encendida. Ello te sorprende y te extraña."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "usar cocina":
+        writeln "Tampoco es la cocina una de tus habilidades más destacables. Como mucho sabes\n"
+                "hacer platos básicos y al final siempre comes fuera de casa. Antes era\n"
+                "diferente, distinto. Cuando ella estaba en la casa, comer era uno de esos\n"
+                "momentos de felicidad que compartíais. Lo era incluso cuando tú con tu mala\n"
+                "praxis cocinabas algo para ella, que siempre agradecía con dulzura aunque a\n"
+                "ti te provocara arcadas... Recuerdos..."
+    end
+    on "mirar|mirar cuarto|mirar cocina|mirar habitación|mirar habitacion":
+        writeln "Aquella era una cocina normal. Típica. Armarios con platos, cacerolas y demás\n"
+                "utensilios que tiempo atrás usabais. La ventana entre el salón y aquel cuarto\n"
+                "que hacía de barra/mesa para comer. Y las puertas del recibidor y de la\n"
+                "despensa, cada una en un extremo de la habitación. Antes le dabais mucho uso.\n"
+                "Ahora era otro cuarto más, muerto de la risa en aquella melancólica casa."
+    end
+end
+
+#================================================================================
+# Despensa de la casa:
+#================================================================================
+room despensa1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if desp1_visitas = 0:
+            writeln "\nEntras en la despensa y por inercia pulsas el interruptor de la luz, pero\n"
+                    "dabas por hecho que no iba a funcionar. Sin embargo se enciende la bombilla.\n"
+                    "Sorprendido miras a la luz, que apenas alumbra y encima parpadea de un modo\n"
+                    "aleatorio. Miras los estantes que te rodean y aquello resulta tétrico,\n"
+                    "lúgubre y agobiante. Pareciera que las paredes se te fueran a echar encima."
+        else:
+            writeln "\nVuelves a entrar en la despensa y la luz sigue alumbrando pobremente el\n"
+                    "lugar. Aquello te hace sentir que crea una atmósfera angustiante, a la par\n"
+                    "que asfixiante. Lo cierto es que te gustaría salir de allí cuanto antes."
+        end
+    end
+    on exit:
+        let desp1_visitas = desp1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, coger, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Martillo
+    #----------------------------------------------------------------------------
+    on "coger martillo|recoger martillo":
+        if desp1_martillo:
+            writeln "Te acercas a los estantes y recoges el martillo que hay encima de una de las\n"
+                    "baldas. Parece bastante sólido y no te acuerdas de cuando lo comprasteis.",
+            let desp1_martillo = false,
+            invadd martillo
+        else:
+            writeln "No ves ningún martillo que poder coger por el cuarto."
+        end
+    end
+    on "usar martillo":
+        if desp1_martillo:
+            writeln "Antes de usar el martillo, sería preferible cogerlo."
+        else:
+            writeln "No ves ningún martillo que poder usar por el cuarto."
+        end
+    end
+    on "mirar martillo":
+        if desp1_martillo:
+            writeln "Es un martillo. Ligeramente grande como para romper casi cualquier cosa. Lo\n"
+                    "cierto es que no te suena haberlo visto antes, pero uno no presta mucha\n"
+                    "atención a objetos como ese. Podría haber estado allí desde que compraron\n"
+                    "aquella desdichada casa."
+        else:
+            writeln "Miras y no ves ningún martillo por el cuarto."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Caja de cerillas
+    #----------------------------------------------------------------------------
+    on "coger caja|coger cerillas|recoger caja|recoger cerillas":
+        if desp1_cerillas:
+            writeln "Te acercas a los estantes y coges la caja de cerillas que hay encima de una\n"
+                    "de las baldas. Las observas un rato y ves que no tienen nada de especial.\n"
+                    "Pero sin duda te podrían ser útiles cuando bajes al sótano.",
+            let desp1_cerillas = false,
+            invadd cerillas
+        else:
+            writeln "No ves ninguna caja de cerillas que poder coger por el cuarto."
+        end
+    end
+    on "abrir caja|abrir cerillas":
+        if desp1_cerillas:
+            writeln "Mejor que abrir la caja de cerillas, lo suyo sería recogerlas."
+        else:
+            writeln "No ves ninguna caja de cerillas que poder abrir por el cuarto."
+        end
+    end
+    on "cerrar caja|cerrar cerillas":
+        if desp1_cerillas:
+            writeln "La caja de cerillas ya se encuentra cerrada en la estantería."
+        else:
+            writeln "No ves ninguna caja de cerillas que poder cerrar por el cuarto."
+        end
+    end
+    on "usar caja|usar cerillas":
+        if desp1_cerillas:
+            writeln "Antes de usar las cerillas, sería preferible cogerlas."
+        else:
+            writeln "No ves ninguna caja de cerillas que poder usar por el cuarto."
+        end
+    end
+    on "mirar caja|mirar cerillas":
+        if desp1_cerillas:
+            writeln "Ves que en una de las estanterías de la despensa hay una caja de cerillas.\n"
+                    "No tienen nada de extraordinarias, pero podrían ser útiles."
+        else:
+            writeln "Miras y no ves ninguna caja de cerillas por el cuarto."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Latas de conservas
+    #----------------------------------------------------------------------------
+    on "coger latas|coger lata|coger conservas|coger conserva":
+        writeln "Deberías hacer limpieza algún día de todas esas latas caducadas, que\n"
+                "posiblemente estén podridas y llenas de moho. Pero no es el momento\n"
+                "de hacerlo. Es de noche, demasiado tarde en la madrugada."
+    end
+    on "usar latas|usar lata|usar conservas|usar conserva":
+        writeln "¿Usarlas para qué? ¿Para comer algo? Posiblemente morirías intoxicado con la\n"
+                "mayoría de los alimentos que había allí guardados."
+    end
+    on "abrir latas|abrir lata|abrir conservas|abrir conserva":
+        writeln "No te apetece abrir ninguna lata. Tampoco es que tengas hambre."
+    end
+    on "cerrar latas|cerrar lata|cerrar conservas|cerrar conserva":
+        writeln "Las latas ya están cerradas. No las puedes cerrar más todavía."
+    end
+    on "mirar latas|mirar lata|mirar conservas|mirar conserva":
+        writeln "Un montón de latas de conservas pueblan de forma anárquica las estanterías de\n"
+                "la despensa. Puede que casi todas estuvieran allí desde la última vez que Eva\n"
+                "hiciera la compra. Había pasado mucho tiempo desde aquello. El tiempo... El\n"
+                "tiempo pasa volando, para cuando uno quiere darse cuenta de ello..."
+    end
+    #----------------------------------------------------------------------------
+    # Estanterías
+    #----------------------------------------------------------------------------
+    on "coger estanterías|coger estanterias|coger estantería|coger estanteria":
+        writeln "Están clavadas a la pared. Ni tienes las fuerzas para arrancarlas, ni crees\n"
+                "que vaya eso a ser de utilidad. Mejor dejarlas donde están."
+    end
+    on "usar estanterías|usar estanterias|usar estantería|usar estanteria":
+        writeln "Las estanterías ya están siendo usadas, para almacenar alimentos que ya no\n"
+                "son útiles en lo más mínimo. Quizás algún día puedas darle mejor uso."
+    end
+    on "abrir estanterías|abrir estanterias|abrir estantería|abrir estanteria":
+        writeln "No tienen puertas, así que no se pueden abrir."
+    end
+    on "cerrar estanterías|cerrar estanterias|cerrar estantería|cerrar estanteria":
+        writeln "No tienen puertas, así que no se pueden cerrar."
+    end
+    on "mirar estanterías|mirar estanterias|mirar estantería|mirar estanteria":
+        if desp1_martillo and desp1_cerillas:
+            writeln "Echas un vistazo a las estanterías y lo único que ves son un martillo, una\n"
+                    "caja de cerillas, latas y más latas. No hay mucho más, que pueda interesar."
+        else if desp1_martillo:
+            writeln "Echas un vistazo a las estanterías y lo único que ves son un martillo, latas\n"
+                    "y más latas. No hay mucho más, que pueda interesar."
+        else if desp1_cerillas:
+            writeln "Echas un vistazo a las estanterías y lo único que ves son una caja de\n"
+                    "cerillas, latas y más latas. No hay mucho más, que pueda interesar."
+        else:
+            writeln "Echas un vistazo a las estanterías y lo único que ves son latas y más latas.\n"
+                    "No hay mucho más, que pueda interesar."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta de la despensa
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        if coci1_p2abierta:
+            if desp1_visitas < 1:
+                writeln "Cruzas la puerta para entrar a la despensa."
+            else:
+                writeln "Cruzas la puerta dirigiéndote de vuelta a la despensa."
+            end,
+            goto cocina1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta":
+        if coci1_p2abierta:
+            writeln "Ya está abierta la puerta de la despensa."
+        else:
+            writeln "Te acercas y abres la puerta de la despensa.",
+            let coci1_p2abierta = true
+        end
+    end
+    on "cerrar puerta":
+        if coci1_p2abierta:
+            writeln "Te acercas y cierras la puerta de la despensa.",
+            let coci1_p2abierta = false
+        else:
+            writeln "Ya está cerrada la puerta de la despensa."
+        end
+    end
+    on "mirar puerta":
+        if coci1_p2abierta:
+            writeln "Te acercas un poco más a la puerta de la despensa y observas a través de la\n"
+                    "misma lo que hay al otro lado. La cocina comunica con el salón con una\n"
+                    "especie de ventana interior, con lo que llega algo de la luz que entra por\n"
+                    "las ventanas del mismo. A pesar de ello, la cocina se encuentra más en la\n"
+                    "penumbra, tirando hacia la oscuridad."
+        else:
+            writeln "Te acercas un poco más a la puerta de la despensa, pero debido a la mala\n"
+                    "iluminación del cuarto, no logras ver nada interesante. Además no deja de\n"
+                    "ser una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar cuarto|mirar habitación|mirar habitacion":
+        writeln "Aquella era una despensa pequeña, aunque más grande que un mero armario.\n"
+                "La bombilla que no paraba de parpadear intermitentemente, iluminaba muy\n"
+                "pobremente el lugar. Se podía decir que había más sombras que luces. Entre\n"
+                "lo que quedaba visible había infinidad de latas de conserva que posiblemente\n"
+                "estaban ya todas caducadas. Hacía semanas o meses que no se molestaba en\n"
+                "entrar allí a poner orden y renovar los suministros. Mientras miras te das\n"
+                "cuenta de que hay un martillo y una caja de cerillas en las estanterías."
+    end
+end
+
+#================================================================================
+# Salón de la casa:
+#================================================================================
+room salón1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if salo1_visitas = 0:
+            writeln "\nEntras en el salón. Las ventanas del cuarto permiten entrar la luz del\n"
+                    "exterior, dejando relativamente bien iluminado lo que allí está. Quizás por\n"
+                    "ello no te diste cuenta al instante de que la tele estaba encendida, emitiendo\n"
+                    "un apenas audible ruido blanco. No estaba puesto ningún canal, solo se veía\n"
+                    "la señal de ruido en la pantalla. Resultaba extraño y perturbador, que no\n"
+                    "funcionase la electricidad en casi ninguna parte de la casa, pero que justo\n"
+                    "el enchufe de la tele estuviera intacto en sus funciones."
+        else if tele_ataque:
+            writeln "\nVuelves a entrar en el salón. Las ventanas del cuarto permiten entrar la luz\n"
+                    "del exterior, dejando relativamente bien iluminado lo que allí está. La tele\n"
+                    "ya no está encendida. Das gracias al Señor por ello. Pero no puedes evitar\n"
+                    "seguir teniendo mucho miedo."
+        else:
+            writeln "\nVuelves a entrar en el salón. Las ventanas del cuarto permiten entrar la luz\n"
+                    "del exterior, dejando relativamente bien iluminado lo que allí está. Quizás\n"
+                    "por ello no te diste cuenta al instante de que la tele estaba encendida,\n"
+                    "emitiendo un apenas audible ruido blanco. No estaba puesto ningún canal, solo\n"
+                    "se veía la señal de ruido en la pantalla. Resultaba extraño y perturbador, que\n"
+                    "no funcionase la electricidad en casi ninguna parte de la casa, pero que justo\n"
+                    "el enchufe de la tele estuviera intacto en sus funciones."
+        end
+    end
+    on exit:
+        let salo1_visitas = salo1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, abrir, cerrar, ir, cruzar, coger, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Muebles
+    #----------------------------------------------------------------------------
+    on "coger muebles|coger mueble":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para ponerse a organizar\n"
+                    "el lugar que ocupan los muebles en el salón."
+        else:
+            writeln "¿Y qué vas a hacer con ellos? ¿Organizar el salón con otra distribución? Lo\n"
+                    "cierto es que no te apetece cambiar de sitio las cosas."
+        end
+    end
+    on "usar muebles|usar mueble":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para sentarse en algún\n"
+                    "sillón o silla del salón."
+        else:
+            writeln "Te sientas un rato, cansado. Pasan unos minutos y te vuelves a levantar. Todo\n"
+                    "sigue igual. Igual de mal que siempre."
+        end
+    end
+    on "abrir muebles|abrir mueble":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para abrir los muebles\n"
+                    "y los armarios. ¿Qué ibas a hacer? ¿Esconderte dentro de ellos? Esa cosa no\n"
+                    "tiene ojos y te está siguiendo, no es como si fueras a despistarla."
+        else:
+            writeln "No te apetece estar abriendo armarios y cajones para rebuscar entre un montón\n"
+                    "de basura comprada durante años. Amontonada como si la vida consistiera en\n"
+                    "justamente acumular cosas sin motivo alguno."
+        end
+    end
+    on "cerrar muebles|cerrar mueble":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para cerrar los muebles\n"
+                    "y los armarios del salón, que además ya están cerrados."
+        else:
+            writeln "Lo cierto es que ya están cerrados los muebles que tienen puertas para ser\n"
+                    "abiertos y cerrados."
+        end
+    end
+    on "mirar muebles|mirar mueble":
+        if salo1_monstruo:
+            writeln "No es momento de ponerse a mirar los muebles. Poco a poco, el ser que acaba\n"
+                    "de salir de la tele, se acerca hasta a ti y el pánico te consume."
+        else:
+            writeln "Los típicos muebles que tiene que tener todo salón \"normal\" pueblan dicho\n"
+                    "cuarto. No te dicen nada. No te transmiten nada. Ya no significan nada."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Televisión
+    #----------------------------------------------------------------------------
+    on "coger televisión|coger television|coger tv|coger tele":
+        if tele_ataque:
+            writeln "Por nada del mundo quieres volver a acercarte a esa televisión. Y mucho menos\n"
+                    "tras lo ocurrido hace unos momentos."
+        else if salo1_monstruo:
+            writeln "Un ser oscuro, -que precisamente ha salido de la tele-, está amenazando tu \n"
+                    "vida. No parece momento para coger la tele y... ¿hacer qué?"
+        else:
+            writeln "La verdad es que no te parece razonable o útil coger la tele y cambiarla de\n"
+                    "sitio. ¿Para qué iba a servir eso?"
+        end
+    end
+    on "usar televisión|usar television|usar tv|usar tele":
+        if tele_ataque:
+            writeln "La tele está apagada. Gracias a Dios. No puedes usarla, ni quieres hacerlo."
+        else if salo1_monstruo:
+            writeln "Un ser oscuro, -que precisamente ha salido de la tele-, está amenazando tu \n"
+                    "vida. No parece momento para usar la tele y... ¿hacer qué?"
+        else if nervioso:
+            writeln "Intentas cambiar de canal en la tele, pero no parecen funcionar los botones.\n"
+                    "Sientes un agudo dolor en el pecho de la angustia del momento."
+        else:
+            writeln "Intentas cambiar de canal en la tele, pero no parecen funcionar los botones.\n"
+                    "Eso te mosquea."
+        end
+    end
+    on "abrir televisión|abrir television|abrir tv|abrir tele|encender televisión|encender television|encender tv|encender tele":
+        if tele_ataque:
+            writeln "Ni siquiera el poder de Dios te llevaría a volver a encender esa maldita\n"
+                    "televisión. No después de lo que te acaba de suceder."
+        else if salo1_monstruo:
+            writeln "Un ser oscuro, -que precisamente ha salido de la tele-, está amenazando tu \n"
+                    "vida. No parece momento para encender la tele y... ¿hacer qué?"
+        else:
+            writeln "La tele ya está encendida."
+        end
+    end
+    on "cerrar televisión|cerrar television|cerrar tv|cerrar tele|apagar televisión|apagar television|apagar tv|apagar tele":
+        if tele_ataque:
+            writeln "La tele ya está apagada. Gracias a Dios."
+        else if salo1_monstruo:
+            writeln "Un ser oscuro, -que precisamente ha salido de la tele-, está amenazando tu \n"
+                    "vida. No parece momento para apagar la tele y... ¿hacer qué?"
+        else if nervioso:
+            writeln "Intentas apagar la tele, pero no funciona el botón. Sientes un agudo dolor en\n"
+                    "el pecho de la angustia del momento."
+        else:
+            writeln "Intentas apagar la tele, pero no funciona el botón. Eso te mosquea."
+        end
+    end
+    on "mirar televisión|mirar television|mirar tv|mirar tele":
+        if tele_ataque:
+            writeln "La tele está apagada. Gracias a Dios."
+        else if salo1_monstruo:
+            writeln "Un ser oscuro, -que precisamente ha salido de la tele-, está amenazando tu \n"
+                    "vida. No es momento de ponerse a mirar la tele. Poco a poco se está acercando\n"
+                    "hasta a ti y el pánico te consume."
+        else if nervioso:
+            writeln "Inexplicablemente la tele está encendida. Está iluminando parte del salón de\n"
+                    "un modo un tanto fantasmagórico. Te sientes profundamente aterrorizado."
+        else:
+            writeln "Inexplicablemente la tele está encendida. Está iluminando parte del salón de\n"
+                    "un modo un tanto fantasmagórico. Te sientes un tanto atemorizado."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Mesilla
+    #----------------------------------------------------------------------------
+    on "coger mesilla":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para ponerse a cambiar\n"
+                    "de sitio la mesilla que además está  al lado de la tele."
+        else:
+            writeln "¿Y qué vas a hacer con ella? ¿Organizar el salón con otra distribución? Lo\n"
+                    "cierto es que no te apetece cambiar de sitio ni la mesilla, ni nada."
+        end
+    end
+    on "usar mesilla":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para usar la mesilla."
+        else:
+            writeln "No hay nada que quieras dejar sobre la mesa en este momento."
+        end
+    end
+    on "abrir mesilla":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para abrir la mesilla."
+        else:
+            writeln "No es una mesa plegable, así que no la puedes ni abrir, ni cerrar."
+        end
+    end
+    on "cerrar mesilla":
+        if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no es momento para cerrar la mesilla."
+        else:
+            writeln "No es una mesa plegable, así que no la puedes ni abrir, ni cerrar."
+        end
+    end
+    on "mirar mesilla":
+        if salo1_monstruo:
+            writeln "No es momento de ponerse a mirar la mesilla. Poco a poco, el ser que acaba\n"
+                    "de salir de la tele, se acerca hasta a ti y el pánico te consume."
+        else if salo1_llavesota:
+            writeln "Al lado de la tele te encuentras una mesilla que tiene la llave del sótano\n"
+                    "sobre la misma. No recordabas haberla dejado allí."
+        else:
+            writeln "Al lado de la tele te encuentras una mesilla que no tiene nada de interesante\n"
+                    "encima."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Llave del sotano
+    #----------------------------------------------------------------------------
+    on "coger llave":
+        if not salo1_llavesota:
+            writeln "No ves ninguna llave que poder coger por el cuarto."
+        else if tele_ataque:
+            writeln "Te acercas a la mesilla y recoges la llave del sótano con mucho miedo.",
+            let salo1_llavesota = false,
+            invadd llavesótano
+        else if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no puedes coger la llave todavía."
+        else if nervioso:
+            writeln "Te acercas a la mesilla para recoger la llave. Pero de la tele empieza a salir\n"
+                    "un ser oscuro que empieza a gritar tu nombre de forma estridente. Sientes un\n"
+                    "pinchazo en el brazo izquierdo. Caes al suelo del dolor, mientras tu corazón\n"
+                    "se para. No tarda mucho en llegar la criatura y ponerle fin a tu agonía. Y al\n"
+                    "final todo se cubre de oscuridad... La eterna oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else:
+            writeln "Te acercas a la mesilla para recoger la llave. Pero de la tele empieza a salir\n"
+                    "un ser oscuro que empieza a gritar tu nombre de forma estridente. El susto que\n"
+                    "te llevas es atroz. Entras en pánico y no sabes qué hacer. Eso no tiene ojos,\n"
+                    "pero notas como tiene su \"mirada\" clavada en ti. Oh Dios, ayúdame, -piensas.",
+            let salo1_monstruo = true,
+            let nervioso = true
+        end
+    end
+    on "usar llave":
+        if not salo1_llavesota:
+            writeln "No ves ninguna llave que poder usar por el cuarto."
+        else if salo1_monstruo:
+            writeln "Un ser oscuro está amenazando tu vida, no puedes usar la llave."
+        else:
+            writeln "Antes de usar la llave, sería preferible cogerla."
+        end
+    end
+    on "mirar llave":
+        if not salo1_llavesota:
+            writeln "Miras y no ves ninguna llave por el cuarto."
+        else if salo1_monstruo:
+            writeln "No es momento de ponerse a mirar la llave. Poco a poco, el ser que acaba\n"
+                    "de salir de la tele, se acerca hasta a ti y el pánico te consume."
+        else:
+            writeln "Encima de la mesilla ves la llave del sótano. Sería bueno cogerla para bajar\n"
+                    "al sótano y comprobar la caja de plomos."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta del salón
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        if salo1_monstruo:
+            writeln "Intentas escapar por la puerta del salón, pero el ser te alcanza. Primero\n"
+                    "sientes un inmenso dolor que da una nueva definición a la palabra agonía.\n"
+                    "Luego caes al suelo entre gemidos. La roja sangre empapa el suelo y rodea tu\n"
+                    "cara. Después llega sólo la oscuridad... La eterna oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else if salo1_p1abierta:
+            writeln "Cruzas la puerta dirigiéndote de vuelta al recibidor.",
+            goto recibidor1
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta":
+        if salo1_monstruo:
+            writeln "Intentas abrir la puerta para escapar, pero el ser te alcanza. Primero sientes\n"
+                    "un inmenso dolor que da una nueva definición a la palabra agonía. Luego caes\n"
+                    "al suelo entre gemidos. La roja sangre empapa el suelo y rodea tu cara.\n"
+                    "Después llega sólo la oscuridad... La eterna oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else if salo1_p1abierta:
+            writeln "Ya está abierta la puerta del salón."
+        else:
+            writeln "Te acercas y abres la puerta del salón.",
+            let salo1_p1abierta = true
+        end
+    end
+    on "cerrar puerta":
+        if salo1_monstruo:
+            writeln "No es momento de ponerse a cerrar la puerta. Poco a poco, el ser que acaba de\n"
+                    "salir de la tele, se acerca hasta a ti y el pánico te consume."
+        else if salo1_p1abierta:
+            writeln "Te acercas y cierras la puerta del salón.",
+            let salo1_p1abierta = false
+        else:
+            writeln "Ya está cerrada la puerta del salón."
+        end
+    end
+    on "mirar puerta":
+        if salo1_monstruo:
+            writeln "No es momento de ponerse a mirar la puerta. Poco a poco, el ser que acaba de\n"
+                    "salir de la tele, se acerca hasta a ti y el pánico te consume."
+        else if salo1_p1abierta:
+            writeln "Te acercas un poco más a la puerta del salón y observas a través de la\n"
+                    "misma lo que hay al otro lado. El lúgubre recibidor sigue tal como lo\n"
+                    "dejaste. Ello no te impide sentir como una opresión en el pecho, que te\n"
+                    "pidiera cerrar la puerta y esconderte."
+        else:
+            writeln "Te acercas un poco más a la puerta del salón. No logras ver nada interesante.\n"
+                    "Es tan solo una puerta sin más."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar cuarto|mirar habitación|mirar habitacion":
+        if tele_ataque:
+            if salo1_llavesota:
+                writeln "El salón está iluminado por las ventanas que dan a la calle. La tele está\n"
+                        "apagada. Gracias a Dios. Cerca de la misma hay una mesilla con una llave."
+            else:
+                writeln "El salón está iluminado por las ventanas que dan a la calle. La tele está\n"
+                        "apagada. Gracias a Dios. Cerca de la misma hay una mesilla."
+            end
+        else if salo1_monstruo:
+            writeln "Un ser oscuro acaba de salir de la tele. Poco a poco se acerca hasta ti y\n"
+                    "notas que el pánico te consume rápidamente."
+        else:
+            if salo1_llavesota:
+                writeln "El salón está iluminado por las ventanas que dan a la calle. Además la tele\n"
+                        "está encendida y proyecta su luz de forma fantasmagórica sobre algunos\n"
+                        "muebles. Cerca de la tele hay una mesilla con una llave."
+            else:
+                writeln "El salón está iluminado por las ventanas que dan a la calle. Además la tele\n"
+                        "está encendida y proyecta su luz de forma fantasmagórica sobre algunos\n"
+                        "muebles. Cerca de la tele hay una mesilla."
+            end
+        end
+    end
+end
+
+#================================================================================
+# Sótano de la casa:
+#================================================================================
+room sótano1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if sota1_visitas = 0:
+            writeln "\nBajas con cuidado por las escaleras al sótano de la casa. Pero está todo\n"
+                    "demasiado oscuro como para distinguir nada allí abajo."
+        else:
+            writeln "\nVuelves a bajar con cuidado por las escaleras al sótano de la casa. Pero\n"
+                    "todo sigue estando demasiado oscuro como para distinguir nada allí abajo."
+        end
+    end
+    on exit:
+        let sota1_visitas = sota1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, ir, subir, usar."
+    end
+    #----------------------------------------------------------------------------
+    # Escaleras
+    #----------------------------------------------------------------------------
+    on "ir escaleras|subir escaleras|usar escaleras":
+        writeln "Con mucho cuidado de no tropezarte o caerte, debido a la oscuridad, subes por\n"
+                "las escaleras hasta llegar al recibidor.",
+        goto recibidor1
+    end
+    on "mirar escaleras":
+        writeln "Miras las escaleras y lo único que ves es una ligera claridad que proviene de\n"
+                "la puerta que se encuentra al final de la misma. Desde allí abajo no se nota\n"
+                "apenas ningún detalle del recibidor."
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar cuarto|mirar habitación|mirar habitacion":
+        writeln "Está todo demasiado oscuro en el sótano como para ver nada, si al menos\n"
+                "tuvieras unas cerillas o algo para tener luz.",
+    end
+end
+
+room sótano2:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        if sota1_visitas = 0:
+            writeln "\nBajas con cuidado por las escaleras al sótano de la casa. Pero está todo\n"
+                    "demasiado oscuro como para distinguir nada allí abajo."
+        else if sota1_iluminaci:
+            writeln "\nVuelves a bajar con cuidado por las escaleras al sótano de la casa. La vela\n"
+                    "que encendiste sigue dando un poco de luz como para distinguir algunas pocas\n"
+                    "cosas allí abajo."
+        else:
+            writeln "\nVuelves a bajar con cuidado por las escaleras al sótano de la casa. Pero\n"
+                    "todo sigue estando demasiado oscuro como para distinguir nada allí abajo."
+        end
+    end
+    on exit:
+        let sota1_visitas = sota1_visitas + 1
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        if sota1_iluminaci:
+            writeln "Puedes mirar, abrir, cerrar, ir, cruzar, subir, usar."
+        else:
+            writeln "Puedes mirar, ir, subir, usar."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Pared extraña
+    #----------------------------------------------------------------------------
+    on "ir pared|cruzar pared":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna pared en especial."
+        else if sota1_paredfond:
+            writeln "Hasta donde recuerdas, las paredes sólidas te impiden precisamente cruzarlas."
+        else:
+            writeln "Destrozaste la pared por completo con el martillo, ya no queda nada que poder\n"
+                    "hacer con ella."
+        end
+    end
+    on "usar pared":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna pared en especial."
+        else if sota1_paredfond:
+            writeln "No ves la forma de usar la pared, ni el objetivo final para un supuesto uso."
+        else:
+            writeln "Destrozaste la pared por completo con el martillo, ya no queda nada que poder\n"
+                    "hacer con ella."
+        end
+    end
+    on "abrir pared":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna pared en especial."
+        else if sota1_paredfond:
+            writeln "Solo con las manos no vas a poder abrir esta pared. Necesitarás algo de\n"
+                    "fuerza bruta."
+        else:
+            writeln "Destrozaste la pared por completo con el martillo, ya no queda nada que poder\n"
+                    "hacer con ella."
+        end
+    end
+    on "cerrar pared":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna pared en especial."
+        else if sota1_paredfond:
+            writeln "Ciertamente la pared está cerrada a cal y canto. No necesitas cerrarla más."
+        else:
+            writeln "Destrozaste la pared por completo con el martillo, ya no queda nada que poder\n"
+                    "hacer con ella."
+        end
+    end
+    on "mirar pared":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna pared en especial."
+        else if sota1_paredfond:
+            writeln "Quizás te estás volviendo loco, pero jurarías que una de las paredes, -del\n"
+                    "sótano-, brilla de forma extraña y peculiar. No sabes si eso es un buen signo\n"
+                    "o una nefasta señal del destino."
+        else:
+            writeln "Miras los escombros que tu ira ha dejado a su paso y te sigues sintiendo igual\n"
+                    "de vacío que siempre. Sientes como si todo fuera absolutamente inútil y fútil."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Puerta misteriosa
+    #----------------------------------------------------------------------------
+    on "ir puerta|cruzar puerta|usar puerta":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna puerta en especial."
+        else if sota1_paredfond:
+            writeln "No ves allí abajo en el sótano ninguna puerta que cruzar."
+        else:
+            writeln "La puerta está cerrada, no puedes cruzarla."
+        end
+    end
+    on "abrir puerta":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna puerta en especial."
+        else if sota1_paredfond:
+            writeln "No ves allí abajo en el sótano ninguna puerta que abrir."
+        else:
+            writeln "La puerta está cerrada, no puedes abrirla sin más, con tus manos."
+        end
+    end
+    on "cerrar puerta":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna puerta en especial."
+        else if sota1_paredfond:
+            writeln "No ves allí abajo en el sótano ninguna puerta que cerrar."
+        else:
+            writeln "La puerta ya está cerrada."
+        end
+    end
+    on "mirar puerta":
+        if not sota1_iluminaci:
+            writeln "Está tan oscuro que no ves nada y mucho menos alguna puerta en especial."
+        else if sota1_paredfond:
+            writeln "No ves allí abajo en el sótano ninguna puerta que mirar."
+        else:
+            writeln "Miras la puerta misteriosa al final del pequeño pasillo y no logras entender\n"
+                    "porqué, pero es como si te llamara. En medio de la misma hay una pequeña\n"
+                    "cerradura brillante. Es como si lanzara destellos fugaces."
+        end
+    end
+    #----------------------------------------------------------------------------
+    # Escaleras
+    #----------------------------------------------------------------------------
+    on "ir escaleras|subir escaleras|usar escaleras":
+        writeln "Con mucho cuidado de no tropezarte o caerte, debido a la oscuridad, subes por\n"
+                "las escaleras hasta llegar al recibidor.",
+        goto recibidor1
+    end
+    on "mirar escaleras":
+        writeln "Miras las escaleras y lo único que ves es una ligera claridad que proviene de\n"
+                "la puerta que se encuentra al final de la misma. Desde allí abajo no se nota\n"
+                "apenas ningún detalle del recibidor."
+    end
+    #----------------------------------------------------------------------------
+    # Cuarto
+    #----------------------------------------------------------------------------
+    on "mirar|mirar cuarto|mirar habitación|mirar habitacion":
+        if sota1_iluminaci:
+            if sota1_paredfond:
+                writeln "El sótano, malamente iluminado con la vela que encendiste, reunía trastos y\n"
+                        "más trastos antiguos, olvidados. Buscas la caja de los plomos, pero en vez de\n"
+                        "localizarla, sientes como que algo raro le ocurre a una de las paredes. No\n"
+                        "sabes exactamente qué ocurre, pero hay algo atípico en ella."
+            else:
+                writeln "El sótano, malamente iluminado con la vela que encendiste, reunía trastos y\n"
+                        "más trastos antiguos, olvidados. Tras la pared rara que había allí, se\n"
+                        "encuentra un pequeño pasillo con una puerta misteriosa al fondo."
+            end
+        else:
+            writeln "Está todo demasiado oscuro en el sótano como para ver nada, si al menos\n"
+                    "tuvieras unas cerillas o algo para tener luz.",
+        end
+    end
+end
+
+#================================================================================
+# La oscuridad:
+#================================================================================
+room oscuridad1:
+    #----------------------------------------------------------------------------
+    # Entrada/Salida
+    #----------------------------------------------------------------------------
+    on enter:
+        writeln "\nNo sabes dónde estás. La puerta que cruzaste en el sótano ha desaparecido.\n"
+                "Te sientes como ligero. Flotando en la nada. No hay luz, solo oscuridad.\n\n"
+                "No sabes cuánto tiempo ha pasado. Pudieron ser horas, días o minutos. Poco\n"
+                "a poco se va acercando una especie de luz brillante. No distingues bien de\n"
+                "qué se trata al estar deslumbrado. Cuando finalmente está lo suficientemente\n"
+                "cerca, se para y empiezas a descubrir formas y detalles. Entonces lo ves con\n"
+                "claridad. El corazón se te encoge. Y escuchas unas palabras con una voz que\n"
+                "pensaste que no volverías a escuchar: \"Amor mío, ayúdame, por favor...\"",
+        invrem cruz,
+        invrem pastillas,
+        invrem llavepequeña,
+        invrem martillo,
+        invrem cerillas,
+        invrem llavesótano
+    end
+    #----------------------------------------------------------------------------
+    # General
+    #----------------------------------------------------------------------------
+    on "ayuda|ayudame|ayúdame":
+        writeln "Puedes mirar, hablar, sacrificarte, huir."
+    end
+    on "sí|si|aceptar|sacrificar|sacrificarme|sacrificarte|ayudarla":
+        writeln "La situación te abruma y te desborda. Pero tienes muy claro algo: darías la\n"
+                "vida por ella. Entonces empiezas a hablarle a su Dios, para pedirle que la\n"
+                "ayude, que la perdone y tomen en su lugar tu alma. ¿Qué no harías por amor a\n"
+                "ella? ¿Qué no darías? Suplicas y suplicas, desconsoladamente. Ella no merecía\n"
+                "semejante fin, fue débil y el no la supo ayudar. Debería haber sido él y no\n"
+                "ella quien estuviera allí siendo torturado por los siglos de los siglos.\n",
+        writeln "Quién sabe cuánto tiempo pudo pasar, hasta que tus plegarias fueron escuchadas\n"
+                "por el altísimo. Lo cierto es que una luz cegadora hizo acto de presencia. Y\n"
+                "mientras veías como Eva ascendía, unas cadenas te atrapaban, quemando tu\n"
+                "carne. El dolor era inaguantable. Era como si te hubiera caído lava encima,\n"
+                "pero tu cuerpo no se derretía y el dolor seguía. Al final la luz desapareció\n"
+                "y tú quedaste solo en la completa oscuridad. Allí estarías hasta el fin de los\n"
+                "tiempos. Te preguntas si de haber vuelto a vivir aquel momento hubieras obrado\n"
+                "igual, pero ya no tiene importancia. Lo único que importa es que la salvaste...\n",
+        writeln "FIN\n\n(Pulsa una tecla para reiniciar.)",
+        finish
+    end
+    on "no|rechazar|negar|negarme|negarte|huir":
+        writeln "Te entra pánico y decides huir de allí. Ella te abandonó quitándose la vida,\n"
+                "algo que incluso en su propia religión es un pecado imperdonable. Se marchó\n"
+                "para no estar contigo. No hay otra opción. Huyes y huyes. Sin dirección. Sin\n"
+                "saber hacia dónde te diriges. Todo es oscuridad. No ves nada.\n\n"
+                "Para cuando quieres darte cuenta te has caído al \"suelo\" y te rindes.\n"
+                "Cierras los ojos, a pesar de no ver nada, y caes en un profundo sueño. Cuando\n"
+                "finalmente despiertas, estás en la cama del dormitorio. Ya es de día. Todo\n"
+                "pareció un mal sueño. ¿Acaso no fue real? ¿Fue una pesadilla?\n",
+        writeln "Pero al final, pasadas unas horas da igual. Cuando pasados unos días, semanas\n"
+                "o meses descubrieran tu cuerpo sin vida en la bañera, -entre la sangre que\n"
+                "salía de tu cuerpo por las venas-, todo daría igual. Todo había acabado. Por\n"
+                "fin quedarías libre del dolor que suponía vivir...\n",
+        writeln "FIN\n\n(Pulsa una tecla para reiniciar.)",
+        finish
+    end
+    on "hablar|hablarla":
+        writeln "Casi por un necio impulso abres la boca para preguntar a Eva: \"¿Por qué te\n"
+                "quitaste la vida? ¿Por qué me abandonaste?\" Al instante te das cuenta de que\n"
+                "le has lanzado un reproche sin apenas pensar bien tus palabras.\n\n"
+                "Al rato Eva te responde, entre la agonía y el dolor: \"Lo siento mucho mi\n"
+                "amor, no pensé que sufrirías tanto... Yo... el dolor...\" Su voz se quebró.\n"
+                "Aunque movía la boca, no emitía sonido alguno. Aquello era una conversación\n"
+                "estéril que no les llevaría a ninguna parte. El pasado no se podía cambiar."
+    end
+    on "mirar|mirarla":
+        writeln "Allí ante ti está tu amada Eva. Encadenada a una roca flotante con muecas de\n"
+                "insufrible martirio. La oyes sollozar y gemir de dolor. No hay nada más a tu\n"
+                "alrededor. Los objetos que llevabas encima han desaparecido. Ni siquiera ha\n"
+                "quedado la cruz que tenías. ¿Qué vas a hacer? ¿Qué puedes hacer? ¿Ayudarla o\n"
+                "huir lejos de allí?"
+    end
+end
+
+#================================================================================
+# Cruz de Eva:
+#================================================================================
+object cruz:
+    on "abrir cruz|abrir crucifijo":
+        writeln "Solo el poder de Cristo podría hacer tal cosa, es lo que te dices a modo de\n"
+                "broma. Después de todo es un crucifijo, no se puede abrir."
+    end
+    on "cerrar cruz|cerrar crucifijo":
+        writeln "La verdad es que no comprendes cómo se podría cerrar una cruz, sinceramente."
+    end
+    on "tirar cruz|tirar crucifijo":
+        writeln "Es un recuerdo importante para ti. Tirarlo sería imperdonable, completamente."
+    end
+    on "rezar|usar cruz|usar crucifijo":
+        if salo1_monstruo:
+            writeln "El ser oscuro, que salió del televisor, se está acercando. Intentas rezar el\n"
+                    "padre nuestro, pero descubres que ni siquiera te lo sabes entero. Qué patético\n"
+                    "eres. Toda una vida rechazando a Dios para acudir a él cuando te interesa...\n"
+                    "Sin decencia alguna por tu parte, imploras al Señor que te proteja del mal,\n"
+                    "que te ayude a sobrevivir a esa pesadilla. Ya casi está sobre ti la sombra.\n"
+                    "Cierras los ojos, suplicas con lágrimas en los ojos y... No pasa nada.\n\n"
+                    "Cuando abres los ojos de nuevo, sigues estando en el salón. La tele está\n"
+                    "apagada y el ser que perseguía ha desaparecido. Sigues nervioso, pero ya\n"
+                    "respiras aliviado. El peligro ya pasó... O eso deseas creer...",
+                    let salo1_monstruo = false,
+                    let tele_ataque = true
+        else:
+            writeln "Nunca fuiste una persona de rezar. Incluso a veces te burlabas de Eva cuando\n"
+                    "ella lo hacía pidiendo a Dios que cuidara de ti. A veces piensas, que en el\n"
+                    "fondo te gustaría creer y rogar a Dios que te la trajera de vuelta. Pero ella\n"
+                    "no está en los dominios de Dios. Su alma no llegó al cielo."
+        end
+    end
+    on "mirar cruz|mirar crucifijo":
+        writeln "Metes la mano en el bolsillo y sacas para mirar la cruz que pertenecía a\n"
+                "Eva. El dolor oprime tu pecho al sentir los recuerdos, profundos, perdidos\n"
+                "en el tiempo, rescatados ante aquel objeto. Resultaba raro verla separarse\n"
+                "del crucifijo, pues se trataba de una de las más preciadas posesiones de ella."
+    end
+end
+
+#================================================================================
+# Bote de pastillas:
+#================================================================================
+object pastillas:
+    on "abrir pastilla|abrir pastillas|abrir bote":
+        writeln "Prefieres no dejar abierto el bote de pastillas. Ya lo harás cuando tengas que\n"
+                "tomar una pastilla. Hasta entonces se quedará cerrado."
+    end
+    on "cerrar pastilla|cerrar pastillas|cerrar bote":
+        writeln "Ya está cerrado el bote, en tu bolsillo."
+    end
+    on "tirar pastilla|tirar pastillas|tirar bote":
+        writeln "¿Deshacerte de las pastillas? Mejor no. Podrías necesitarlas si te da un\n"
+                "ataque de ansiedad o de pánico."
+    end
+    on "usar pastilla|usar pastillas|usar bote|tomar pastilla|tomar pastillas":
+        if ((roomname) = "salón1") and salo1_monstruo:
+            writeln "Estás en pánico. No es para menos, un ser oscuro está amenazando tu vida.\n"
+                    "Intentas echar mano al bote de pastillas para intentar tranquilizarte, como\n"
+                    "si eso fuera a ayudar en algo a combatirlo. Te tomas 2 o 3 y las tragas\n"
+                    "impulsivamente. Pero no desaparece. Es más, te alcanza y te atrapa. Primero\n"
+                    "sientes un inmenso dolor que da una nueva definición a la palabra agonía.\n"
+                    "Luego caes al suelo entre gemidos. La roja sangre empapa el suelo y rodea tu\n"
+                    "cara. Después llega sólo la oscuridad... La eterna oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else if nervioso:
+            writeln "Estás nervioso. Lo notas. Como si una mano esquelética tirara de tu esternón,\n"
+                    "sientes una terrible presión en el pecho. Ya conoces bien esa sensación.\n"
+                    "Demasiado bien. Llevas tanto tiempo tratando de escapar de la ansiedad...\n"
+                    "Te centras, no sin esfuerzo por el dolor, llevando tu mano al bolsillo. Sacas\n"
+                    "las pastillas para sacar un par. Normalmente lo suyo es solo tomar una, pero\n"
+                    "te da igual. Estás harto, desesperado. Te las tragas sin pensarlo dos veces y\n"
+                    "esperas a que hagan efecto... Esperas... Siempre se reduce todo a esperar...",
+            let nervioso = false
+        else:
+            writeln "Lo cierto es que no estás tan nervioso como para necesitar tomarte una\n"
+                    "pastilla. Además el médico te advirtió que no era bueno abusar de ellas.\n"
+                    "De hecho a veces notas que te cuesta dormir por las noches."
+        end
+    end
+    on "mirar pastilla|mirar pastillas|mirar bote":
+        writeln "Metes la mano en el bolsillo y sacas para mirar el bote de pastillas que\n"
+                "cogiste del baño. Sirven como tranquilizantes para cuando te da un ataque\n"
+                "de nervios o de ansiedad. Por desgracia, suele ser algo regular y a menudo."
+    end
+end
+
+#================================================================================
+# Llave del sótano:
+#================================================================================
+object llavesótano:
+    on "abrir llave sótano|abrir llave sotano":
+        writeln "Las llaves no se abren, sirven para abrir o cerrar cerraduras más bien."
+    end
+    on "cerrar llave sótano|cerrar llave sotano":
+        writeln "Las llaves no se cierran, sirven para abrir o cerrar cerraduras más bien."
+    end
+    on "usar llave sótano|usar llave sotano":
+        if ((roomname) = "recibidor1"):
+            if sota1_c1abierta:
+                writeln "Te acercas hasta la puerta y usas la llave para cerrar el sótano.",
+                let sota1_c1abierta = false
+            else:
+                writeln "Te acercas hasta la puerta y usas la llave para abrir el sótano.",
+                let sota1_c1abierta = true
+            end
+        else:
+            writeln "La puerta del sótano no está en dicha habitación, no puedes usar la llave."
+        end
+    end
+    on "tirar llave sótano|tirar llave sotano":
+        writeln "No vas a tirar la llave del sótano para perderla por ahí."
+    end
+    on "mirar llave sótano|mirar llave sotano":
+        writeln "Metes la mano en el bolsillo y sacas para mirar la llave del sótano. Sirve\n"
+                "básicamente para abrir la puerta del sótano, la que está en el recibidor de\n"
+                "la casa, en la planta baja."
+    end
+end
+
+#================================================================================
+# Llave pequeña:
+#================================================================================
+object llavepequeña:
+    on "abrir llave pequeña":
+        writeln "Las llaves no se abren, sirven para abrir o cerrar cerraduras más bien."
+    end
+    on "cerrar llave pequeña":
+        writeln "Las llaves no se cierran, sirven para abrir o cerrar cerraduras más bien."
+    end
+    on "usar llave pequeña":
+        if ((roomname) = "sótano2"):
+            if (not sota1_iluminaci) or sota1_paredfond:
+                writeln "No ves en el sótano ninguna puerta en la que usar dicha llave."
+            else:
+                writeln "Te acercas hasta la misteriosa puerta que acaba de aparecer, sacas la llave\n"
+                        "que encontraste en la biblia de Eva y la metes en la cerradura. Con un giro\n"
+                        "notas como se abre la cerradura y la puerta después. Sientes como una fuerza\n"
+                        "te llama hacia su interior y entras.",
+                goto oscuridad1
+            end
+        else:
+            writeln "No encuentras ninguna puerta en la que usar dicha llave en ese cuarto."
+        end
+    end
+    on "tirar llave pequeña":
+        writeln "No vas a tirar la llave pequeña para perderla por ahí. Además que todavía no\n"
+                "sabes para qué sirve."
+    end
+    on "mirar llave pequeña":
+        writeln "Metes la mano en el bolsillo y sacas para mirar la llave pequeña que cogiste\n"
+                "en el despacho. Lo cierto es que no te suena haberla visto con anterioridad\n"
+                "y tampoco sabes para qué sirve. Quizás no era más que una vieja llave que\n"
+                "representaba algún lejano recuerdo para Eva."
+    end
+end
+
+#================================================================================
+# Martillo:
+#================================================================================
+object martillo:
+    on "abrir puerta martillo|abrir martillo puerta":
+        writeln "Sería mejor buscar la llave para abrir la puerta, que resolverlo todo a golpes\n"
+                "como habitualmente haces."
+    end
+    on "abrir martillo":
+        writeln "Los martillos no se abren. Como mucho sirven para abrir a golpes una barrera."
+    end
+    on "cerrar martillo":
+        writeln "Los martillos no se cierran. Como mucho sirven para abrir a golpes una barrera."
+    end
+    on "usar martillo":
+        if ((roomname) = "salón1") and salo1_monstruo:
+            writeln "Estás en pánico. No es para menos, un ser oscuro está amenazando tu vida.\n"
+                    "Coges el martillo que llevas encima e intentas golpear a la criatura con él.\n"
+                    "Pero no funciona, no logras dañarla. Es más, te alcanza y te atrapa. Primero\n"
+                    "sientes un inmenso dolor que da una nueva definición a la palabra agonía.\n"
+                    "Luego caes al suelo entre gemidos. La roja sangre empapa el suelo y rodea tu\n"
+                    "cara. Después llega sólo la oscuridad... La eterna oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else if ((roomname) = "sótano2"):
+            if sota1_iluminaci and sota1_paredfond:
+                writeln "Tomas el martillo y golpeas la extraña pared del fondo del sótano con toda tu\n"
+                        "rabia, como si ello te fuera a consolar. El muro se parte y ves un corto\n"
+                        "pasillo que termina en una puerta con una cerradura pequeña.",
+                let sota1_paredfond = false
+            else:
+                writeln "No queda, en el sótano, nada más con lo que usar el martillo."
+            end
+        else:
+            writeln "No crees que sea necesario usar el martillo en dicho cuarto."
+        end
+    end
+    on "tirar martillo":
+        writeln "Nunca se sabe cuando te pueda ser útil un martillo. Mejor te lo quedas todavía."
+    end
+    on "mirar martillo":
+        writeln "Metes la mano en el bolsillo y sacas para mirar el martillo que estaba en la\n"
+                "despensa. Lo cierto es que no te suena haberlo visto antes, pero uno no presta\n"
+                "mucha atención a objetos como ese. Podría haber estado en la casa desde que la\n"
+                "compraron, haberlo encontrado Eva y dejarlo en la despensa tras usarlo."
+    end
+end
+
+#================================================================================
+# Caja de cerrillas:
+#================================================================================
+object cerillas:
+    on "abrir cerillas":
+        writeln "La abres y ¿luego qué haces con las cerillas? ¿Las dejas caer por el bolsillo?"
+    end
+    on "cerrar cerillas":
+        writeln "La caja de cerillas ya está cerrada en tu bolsillo."
+    end
+    on "usar cerillas":
+        if ((roomname) = "salón1") and salo1_monstruo:
+            writeln "Estás en pánico. No es para menos, un ser oscuro está amenazando tu vida.\n"
+                    "Sacas la caja de cerillas para intentar, aunque resulte ridículo, prender\n"
+                    "fuego a la criatura o al menos intentar asustarla. Pero no funciona. Es más,\n"
+                    "la llama empieza a arder como si fuera fuego inferna y te empieza a consumir.\n"
+                    "Sientes un inmenso dolor que da una nueva definición a la palabra agonía.\n"
+                    "Luego caes al suelo entre alaridos. Golpeas el suelo y los muebles lleno de\n"
+                    "dolor y sufrimiento. Hasta que finalmente llega la oscuridad... La eterna\n"
+                    "oscuridad...\n",
+            writeln "(Fin del juego, pulsa una tecla para reiniciar.)",
+            finish
+        else if ((roomname) = "sótano2"):
+            if sota1_iluminaci:
+                writeln "El sótano ya está iluminado gracias a la vela que encendiste."
+            else:
+                writeln "En medio de toda aquella oscuridad notas que hay un candelabro con una vela\n"
+                        "todavía intacta. Sacas la caja de cerillas, enciendes una y la usas, -con\n"
+                        "cuidado de no quemarte-, para que se ilumine el sótano. Ahora ya se puede\n"
+                        "ver un poco mejor lo que hay allí.",
+                let sota1_iluminaci = true
+            end
+        else:
+            writeln "No crees que sea necesario usar las cerillas en dicho cuarto."
+        end
+    end
+    on "tirar cerillas":
+        writeln "Estas cerillas todavía podrían serte útiles. No las vas a dejar tiradas por\n"
+                "ahí, perdidas en la casa para luego tener que volver a buscarlas."
+    end
+    on "quemar|prender fuego":
+        writeln "Sí, en ocasiones sientes que le prenderías fuego a toda la casa. A veces,\n"
+                "desearías arder y ser consumido por las llamas. Para dejar de sufrir. Pero\n"
+                "no lo haces, ya sea por cobardía o por \"responsabilidad\"..."
+    end
+    on "mirar cerillas":
+        writeln "Metes la mano en el bolsillo y sacas para mirar la caja de cerillas que estaba\n"
+                "en la despensa. No tiene nada de extraordinaria, pero podría ser útil."
+    end
+end

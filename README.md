@@ -184,6 +184,7 @@ The only time the equals operator is not use to compare is in the let statement 
 ### Rooms:
 
 * `goto room_name`: Sets the next room to change after the event is executed.
+* `roomname`: Gets the name of the current room.
 * `lastroom`: Gets the last room before the current one.
 
 ### Inventory:

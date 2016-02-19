@@ -1,0 +1,19 @@
+//hgignorefile
+
+syntax: glob
+.git/
+.vs/
+Build
+Temp
+obj
+Library
+*-csharp.sln.*/
+*.suo
+*.sln
+*.sln.docstates
+*.csproj
+*.unityproj
+*.pidb
+*.userprefs
+*.DS_Store
+Thumbs.db
