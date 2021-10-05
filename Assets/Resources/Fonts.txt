@@ -1,1 +1,4 @@
 Size: 8x12 pixels (16x16 cells)
+
+Full HD: 1920×1080
+HD Ready: 1280x720

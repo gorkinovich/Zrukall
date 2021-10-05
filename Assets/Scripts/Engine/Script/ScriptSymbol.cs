@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -823,7 +823,11 @@ namespace Engine.Script {
                 || (victim == ScriptFunctions.ROOMNAME)
                 || (victim == ScriptFunctions.LASTROOM)
                 || (victim == ScriptFunctions.SETRUNFST)
-                || (victim == ScriptFunctions.SETRUNALL);
+                || (victim == ScriptFunctions.SETRUNALL)
+                || (victim == ScriptFunctions.SETFGCOLOR)
+                || (victim == ScriptFunctions.SETBGCOLOR)
+                || (victim == ScriptFunctions.CLEAR)
+                || (victim == ScriptFunctions.EXIT);
         }
         #endregion
 

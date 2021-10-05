@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,7 +19,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //******************************************************************************************
+using Console;
 using Engine.Script;
+using Engine.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -211,10 +213,10 @@ namespace Engine.Data {
             var core = EngineBehaviour.Instance;
             if (Name == ScriptFunctions.WRITELN) {
                 // The "write line" function:
-                core.Output.WriteLine(paramsToString());
+                core.WriteLine(paramsToConsoleStrings());
             } else if (Name == ScriptFunctions.WRITE) {
                 // The "write" function:
-                core.Output.Write(paramsToString());
+                core.Write(paramsToConsoleStrings());
             } else if (Name == ScriptFunctions.GOTO) {
                 // The "goto" function:
                 var name = firstParamToString();
@@ -266,8 +268,64 @@ namespace Engine.Data {
             } else if (Name == ScriptFunctions.SETRUNALL) {
                 // The "set run all" function:
                 core.Context.RunAll = true;
+            } else if (Name == ScriptFunctions.SETFGCOLOR) {
+                // The "set foreground color" function:
+                if (Parameters.Count() > 0) {
+                    var color = Parameters.First().Execute().GetInteger();
+                    core.CurrentForegroundColor = EgaPalette.GetColorByIndex(color, EgaPalette.WhiteIndex);
+                }
+            } else if (Name == ScriptFunctions.SETBGCOLOR) {
+                // The "set background color" function:
+                if (Parameters.Count() > 0) {
+                    var color = Parameters.First().Execute().GetInteger();
+                    core.CurrentBackgroundColor = EgaPalette.GetColorByIndex(color, EgaPalette.BlackIndex);
+                }
+            } else if (Name == ScriptFunctions.CLEAR) {
+                // The "clear screen" function:
+                core.Clear();
+            } else if (Name == ScriptFunctions.EXIT) {
+                // The "exit" function:
+                core.Exit();
             }
             return core.Context.DefaultValue;
+        }
+        #endregion
+
+        #region string paramsToStringBlocks ()
+        /// <summary>
+        /// Converts the parameters into a string blocks.
+        /// </summary>
+        /// <returns>The string blocks representation of the parameters.</returns>
+        private IEnumerable<ConsoleString> paramsToConsoleStrings () {
+            if (Parameters.Count() > 0) {
+                int position = 0;
+                int foreground = EgaPalette.WhiteIndex;
+                int background = EgaPalette.BlackIndex;
+                LinkedList<ConsoleString> messages = new LinkedList<ConsoleString>();
+                foreach (var item in Parameters) {
+                    var value = item.Execute();
+                    if (value is AdventureStringValue) {
+                        messages.AddLast(new ConsoleString(
+                            value.GetString(),
+                            EgaPalette.GetColorByIndex(foreground),
+                            EgaPalette.GetColorByIndex(background)
+                        ));
+                        position = 0;
+                        foreground = EgaPalette.WhiteIndex;
+                        background = EgaPalette.BlackIndex;
+                    } else {
+                        if (position == 0) {
+                            foreground = value.GetInteger();
+                            ++position;
+                        } else {
+                            background = value.GetInteger();
+                        }
+                    }
+                }
+                return messages;
+            } else {
+                return null;
+            }
         }
         #endregion
 

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -118,6 +118,34 @@ namespace Engine.Script {
         /// The "set run all" function name in the source code.
         /// </summary>
         public const string SETRUNALL = "setrunall";
+        #endregion
+
+        #region string SETFGCOLOR
+        /// <summary>
+        /// The "set foreground color" function name in the source code.
+        /// </summary>
+        public const string SETFGCOLOR = "setfgcolor";
+        #endregion
+
+        #region string SETBGCOLOR
+        /// <summary>
+        /// The "set background color" function name in the source code.
+        /// </summary>
+        public const string SETBGCOLOR = "setbgcolor";
+        #endregion
+
+        #region string CLEAR
+        /// <summary>
+        /// The "clear screen" function name in the source code.
+        /// </summary>
+        public const string CLEAR = "clear";
+        #endregion
+
+        #region string EXIT
+        /// <summary>
+        /// The "exit" function name in the source code.
+        /// </summary>
+        public const string EXIT = "exit";
         #endregion
     }
 }

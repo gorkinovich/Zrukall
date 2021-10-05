@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,6 +19,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //******************************************************************************************
+using Console;
 using UnityEngine;
 
 namespace Engine {
@@ -98,6 +99,22 @@ namespace Engine {
         /// Writes a line in the console.
         /// </summary>
         void WriteLine ();
+        #endregion
+
+        #region void Write (ConsoleString)
+        /// <summary>
+        /// Writes a message in the console.
+        /// </summary>
+        /// <param name="message">The message to write.</param>
+        void Write (ConsoleString message);
+        #endregion
+
+        #region void WriteLine (ConsoleString)
+        /// <summary>
+        /// Writes a line in the console.
+        /// </summary>
+        /// <param name="message">The message to write.</param>
+        void WriteLine (ConsoleString message);
         #endregion
 
         #region void GotoXY (int, int)

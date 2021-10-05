@@ -19,47 +19,63 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //******************************************************************************************
-using System;
+using UnityEngine;
 
-namespace Engine {
+namespace Console {
     /// <summary>
-    /// This interface represents an input device.
+    /// This class represents a string to be writen inside the console buffer.
     /// </summary>
-    public interface IInputDevice {
+    public class ConsoleString {
         //********************************************************************************
         // Properties
         //********************************************************************************
 
-        #region string CurrentText
+        #region string TextMessage
         /// <summary>
-        /// Gets the current text used by the input.
+        /// The text message of the string.
         /// </summary>
-        string CurrentText { get; }
+        public string TextMessage { get; set; } 
         #endregion
 
-        #region Action<string> OnNextLine
+        #region Color ForegroundColor
         /// <summary>
-        /// Gets or sets the on next line event handler.
+        /// The foreground color of the string.
         /// </summary>
-        Action<string> OnNextLine { get; set; }
+        public Color ForegroundColor { get; set; } 
         #endregion
 
-        #region bool EnableTextInput
+        #region Color BackgroundColor
         /// <summary>
-        /// Gets or sets the enable flag used by the input.
+        /// The background color of the string.
         /// </summary>
-        bool EnableTextInput { get; set; }
+        public Color BackgroundColor { get; set; } 
         #endregion
 
         //********************************************************************************
-        // Methods
+        // Constructors
         //********************************************************************************
 
-        #region void ResetInput ()
+        #region ConsoleString ()
         /// <summary>
-        /// Resets the input data.
+        /// Constructs a new object.
         /// </summary>
-        void ResetInput ();
+        public ConsoleString () {
+            TextMessage = "";
+            ForegroundColor = Color.white;
+            BackgroundColor = Color.black;
+        }
         #endregion
+
+        #region ConsoleString ()
+        /// <summary>
+        /// Constructs a new object.
+        /// </summary>
+        public ConsoleString (string message, Color foreground, Color background) {
+            TextMessage = message;
+            ForegroundColor = foreground;
+            BackgroundColor = background;
+        }
+        #endregion
+
     }
 }

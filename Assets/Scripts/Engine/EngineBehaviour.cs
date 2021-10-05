@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -19,10 +19,12 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //******************************************************************************************
+using Console;
 using Engine.Data;
 using Engine.Script;
 using Engine.Util;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace Engine {
     /// <summary>
@@ -130,18 +132,25 @@ namespace Engine {
         }
         #endregion
 
-        #region Color _previousColor
-        /// <summary>
-        /// The previous color used before the line input.
-        /// </summary>
-        private Color _previousColor;
-        #endregion
-
         #region float _finishPause
         /// <summary>
         /// The finish pause delta time counter.
         /// </summary>
         private float _finishPause;
+        #endregion
+
+        #region CurrentColor
+        /// <summary>
+        /// The current foreground color for the text.
+        /// </summary>
+        public Color CurrentForegroundColor { get; set; }
+        #endregion
+
+        #region CurrentBackgroundColor
+        /// <summary>
+        /// The current background color for the text.
+        /// </summary>
+        public Color CurrentBackgroundColor { get; set; }
         #endregion
 
         //********************************************************************************
@@ -201,10 +210,10 @@ namespace Engine {
             _finishPause = 0.0f;
             _context = new AdventureContext();
             if (_game != null) {
-                _output.BackgroundColor = EgaPalette.Black;
-                _output.ForegroundColor = EgaPalette.White;
-                _output.Clear();
-                _output.WriteLine("Zrukall Text Adventure Engine 0.1\n");
+                CurrentBackgroundColor = EgaPalette.Black;
+                CurrentForegroundColor = EgaPalette.White;
+                Clear();
+                _output.WriteLine("Zrukall Text Adventure Engine 0.2\n");
                 _context.ChangeRoom(AdventureContext.DEFAULT_ROOM);
                 _input.OnNextLine = EndReadLine;
                 StartReadLine();
@@ -219,7 +228,6 @@ namespace Engine {
         public void StartReadLine () {
             if (!_context.Finished && _context.NextRoom == null) {
                 _output.WriteLine();
-                _previousColor = _output.ForegroundColor;
                 _output.ForegroundColor = EgaPalette.Red;
                 _output.Write("> ");
                 _output.ForegroundColor = EgaPalette.White;
@@ -234,10 +242,68 @@ namespace Engine {
         /// </summary>
         /// <param name="line">The readed line.</param>
         public void EndReadLine (string line) {
-            _output.ForegroundColor = _previousColor;
             _output.WriteLine();
-            _context.ExecuteAction(line);
+            if (line == ":q" || line == ":quit") {
+                Exit();
+            } else {
+                _context.ExecuteAction(line);
+            }
             StartReadLine();
+        }
+        #endregion
+
+        private void updateFontColors() {
+            _output.BackgroundColor = CurrentBackgroundColor;
+            _output.ForegroundColor = CurrentForegroundColor;
+        }
+
+        #region void Write (IEnumerable<ConsoleString>)
+        /// <summary>
+        /// Writes a message in the console.
+        /// </summary>
+        /// <param name="messages">The messages to write.</param>
+        public void Write (IEnumerable<ConsoleString> messages) {
+            if (messages != null) {
+                updateFontColors();
+                foreach (var item in messages) {
+                    _output.Write(item);
+                }
+            }
+        }
+        #endregion
+
+        #region void WriteLine (IEnumerable<ConsoleString>)
+        /// <summary>
+        /// Writes a line in the console.
+        /// </summary>
+        /// <param name="messages">The messages to write.</param>
+        public void WriteLine (IEnumerable<ConsoleString> messages) {
+            if (messages != null) {
+                Write(messages);
+                _output.WriteLine();
+            }
+        }
+        #endregion
+
+        #region void Clear()
+        /// <summary>
+        /// Clears the screen of the game.
+        /// </summary>
+        public void Clear () {
+            updateFontColors();
+            _output.Clear();
+        }
+        #endregion
+
+        #region void Exit()
+        /// <summary>
+        /// Exits the game application.
+        /// </summary>
+        public void Exit() {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+            Application.Quit();
         }
         #endregion
     }

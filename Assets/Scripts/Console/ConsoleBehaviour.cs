@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +44,20 @@ namespace Console {
         /// The default font height used in the console.
         /// </summary>
         private const int DEFAULT_FONT_HEIGHT = 12;
+        #endregion
+
+        #region int DEFAULT_FONT_WIDTH_SEPARATION
+        /// <summary>
+        /// The default font width separation used in the console.
+        /// </summary>
+        private const int DEFAULT_FONT_WIDTH_SEPARATION = 0;
+        #endregion
+
+        #region int DEFAULT_FONT_HEIGHT_SEPARATION
+        /// <summary>
+        /// The default font height separation used in the console.
+        /// </summary>
+        private const int DEFAULT_FONT_HEIGHT_SEPARATION = 0;
         #endregion
 
         #region int MAX_CHARS
@@ -107,6 +121,14 @@ namespace Console {
         /// </summary>
         [SerializeField]
         private Vector2 _fontSize = new Vector2(DEFAULT_FONT_WIDTH, DEFAULT_FONT_HEIGHT);
+        #endregion
+
+        #region Vector2 _fontSeparation
+        /// <summary>
+        /// The separation of the font used by the console.
+        /// </summary>
+        [SerializeField]
+        private Vector2 _fontSeparation = new Vector2(DEFAULT_FONT_WIDTH_SEPARATION, DEFAULT_FONT_HEIGHT_SEPARATION);
         #endregion
 
         #region Sprite[] _fontSprites
@@ -269,14 +291,14 @@ namespace Console {
         /// </summary>
         private void makeFontSprites () {
             _fontSprites = new Sprite[MAX_CHARS];
-            var pos = new Vector2(0.0f, (_fontTexture.height - _fontSize.y));
+            var pos = new Vector2(_fontSeparation.x, (_fontTexture.height - (_fontSize.y + _fontSeparation.y)));
             for (int i = 0; i < MAX_CHARS; i++) {
                 var rect = new Rect(pos, _fontSize);
                 _fontSprites[i] = Sprite.Create(_fontTexture, rect, SPRITE_PIVOT, 1.0f);
-                pos.x += _fontSize.x;
+                pos.x += (_fontSize.x + _fontSeparation.x);
                 if (pos.x >= _fontTexture.width) {
-                    pos.x = 0.0f;
-                    pos.y -= _fontSize.y;
+                    pos.x = _fontSeparation.x;
+                    pos.y -= (_fontSize.y + _fontSeparation.y);
                 }
             }
         }
@@ -518,6 +540,29 @@ namespace Console {
         /// This method writes a line in the console.
         /// </summary>
         public void WriteLine () {
+            Write('\n');
+        }
+        #endregion
+
+        #region void Write (ConsoleString)
+        /// <summary>
+        /// This method writes a message in the console.
+        /// </summary>
+        /// <param name="message">The message to write.</param>
+        public void Write (ConsoleString message) {
+            BackgroundColor = message.BackgroundColor;
+            ForegroundColor = message.ForegroundColor;
+            Write(message.TextMessage);
+        }
+        #endregion
+
+        #region void WriteLine (ConsoleString)
+        /// <summary>
+        /// This method writes a line in the console.
+        /// </summary>
+        /// <param name="message">The message to write.</param>
+        public void WriteLine (ConsoleString message) {
+            Write(message);
             Write('\n');
         }
         #endregion

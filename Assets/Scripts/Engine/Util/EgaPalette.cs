@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************
-// Copyright (c) 2016 Gorka Suárez García
+// Copyright (c) 2021 Gorka Suárez García
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -102,5 +102,21 @@ namespace Engine.Util {
             DarkGray, BrightBlue, BrightGreen, BrightCyan,
             BrightRed, BrightMagenta, BrightYellow, White
         };
+
+        //********************************************************************************
+        // Methods
+        //********************************************************************************
+
+        public static Color GetColorByIndex(int index) {
+            return GetColorByIndex(index, WhiteIndex);
+        }
+
+        public static Color GetColorByIndex (int index, int defaultIndex) {
+            if (0 <= index && index < NumberOfColors) {
+                return Colors[index];
+            } else {
+                return Colors[defaultIndex];
+            }
+        }
     }
 }
