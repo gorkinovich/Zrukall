@@ -162,7 +162,7 @@ The only time the equals operator is not use to compare is in the let statement 
 2. ^
 3. *, /, %, div, mod
 4. +, -
-5. >, <, >=, <=
+5. <, >, <=, >=
 6. =, <>
 7. and
 8. xor
