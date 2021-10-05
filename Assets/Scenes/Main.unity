@@ -164,5 +164,13 @@ PrefabInstance:
       propertyPath: _startScript
       value: Main
       objectReference: {fileID: 0}
+    - target: {fileID: 11497694, guid: 60f5290c97937124595967669f349351, type: 3}
+      propertyPath: _fontSeparation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 11497694, guid: 60f5290c97937124595967669f349351, type: 3}
+      propertyPath: _fontSeparation.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 60f5290c97937124595967669f349351, type: 3}
