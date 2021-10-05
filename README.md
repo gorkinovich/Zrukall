@@ -180,6 +180,9 @@ The only time the equals operator is not use to compare is in the let statement 
 
 * `writeln parameters`: Writes a line in the console with an end of line after the message. It's the same that `write parameters "\n"`.
 * `write parameters`: Writes a line in the console.
+* `setfgcolor color`: Sets the foreground color, where `color` is an integer index from the EGA palette (0..15).
+* `setbgcolor color`: Sets the background color, where `color` is an integer index from the EGA palette (0..15).
+* `clear`: Clears the screen with the current background color.
 
 ### Rooms:
 
@@ -197,3 +200,4 @@ The only time the equals operator is not use to compare is in the let statement 
 
 * `finish`: Finish the game. The user will start a new one after pressing any key.
 * `reset`: Resets the game. It's similar to `finish` but the player won't need to press any key to start the new game.
+* `exit`: Exits the game, ending the execution of the unity application.
